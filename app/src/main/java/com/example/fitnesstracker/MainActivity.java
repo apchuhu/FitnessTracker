@@ -28,16 +28,16 @@ public class MainActivity extends AppCompatActivity {
         setContentView(binding.getRoot());
         replaceFragment(new HomeFragment());
 
-        editTextInput = findViewById(R.id.editText);
-        textViewOutput = findViewById(R.id.displayText);
-
-        Button buttonDisplay = findViewById(R.id.submitButton);
-        buttonDisplay.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                displayInput();
-            }
-        });
+//        editTextInput = findViewById(R.id.editText);
+//        textViewOutput = findViewById(R.id.displayText);
+//
+//        Button buttonDisplay = findViewById(R.id.submitButton);
+//        buttonDisplay.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                displayInput();
+//            }
+//        });
 
         binding.bottomNavigationView.setOnItemSelectedListener(item -> {
             int itemId = item.getItemId();
@@ -50,6 +50,9 @@ public class MainActivity extends AppCompatActivity {
             else if (itemId == R.id.plan) {
                 replaceFragment(new PlanFragment());
             }
+            else if (itemId == R.id.steps){
+                replaceFragment(new StepsFragment());
+            }
             return true;
         });
     }
@@ -61,8 +64,8 @@ public class MainActivity extends AppCompatActivity {
         fragmentTransaction.commit();
     }
 
-    public void displayInput() {
-        String userInput = editTextInput.getText().toString();
-        textViewOutput.setText("User input: " + userInput);
-    }
+//    public void displayInput() {
+//        String userInput = editTextInput.getText().toString();
+//        textViewOutput.setText("User input: " + userInput);
+//    }
 }

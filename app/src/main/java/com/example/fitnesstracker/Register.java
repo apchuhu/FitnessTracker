@@ -3,11 +3,13 @@ package com.example.fitnesstracker;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -25,6 +27,8 @@ public class Register extends AppCompatActivity {
 
     private ProgressBar progressBar;
 
+    private TextView textView;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -35,6 +39,16 @@ public class Register extends AppCompatActivity {
         editTextPassword = findViewById(R.id.password);
         buttonReg = findViewById(R.id.button_register);
         progressBar = findViewById(R.id.progressBar);
+        textView = findViewById(R.id.loginNow);
+
+        textView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(getApplicationContext(), Login.class);
+                startActivity(intent);
+                finish();
+            }
+        });
 
         buttonReg.setOnClickListener((new View.OnClickListener() {
             @Override

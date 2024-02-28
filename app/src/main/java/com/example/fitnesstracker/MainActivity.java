@@ -28,16 +28,16 @@ public class MainActivity extends AppCompatActivity {
         setContentView(binding.getRoot());
         replaceFragment(new HomeFragment());
 
-        editTextInput = findViewById(R.id.editText);
-        textViewOutput = findViewById(R.id.displayText);
+//        editTextInput = findViewById(R.id.editText);
+//        textViewOutput = findViewById(R.id.displayText);
 
-        Button buttonDisplay = findViewById(R.id.submitButton);
-        buttonDisplay.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                displayInput();
-            }
-        });
+//        Button buttonDisplay = findViewById(R.id.submitButton);
+//        buttonDisplay.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                displayInput();
+//            }
+//        });
 
         binding.bottomNavigationView.setOnItemSelectedListener(item -> {
             int itemId = item.getItemId();

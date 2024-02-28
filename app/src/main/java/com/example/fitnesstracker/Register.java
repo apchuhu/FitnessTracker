@@ -13,10 +13,8 @@ import android.widget.Toast;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.textfield.TextInputEditText;
-import com.google.firebase.Firebase;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 
 public class Register extends AppCompatActivity {
 
@@ -25,7 +23,7 @@ public class Register extends AppCompatActivity {
     //creation of the Firebase object
     private FirebaseAuth mAuth;
 
-    private ProgressBar progBar;
+    private ProgressBar progressBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,12 +34,12 @@ public class Register extends AppCompatActivity {
         editTextEmail = findViewById(R.id.email);
         editTextPassword = findViewById(R.id.password);
         buttonReg = findViewById(R.id.button_register);
-        progBar = findViewById(R.id.progressBar);
+        progressBar = findViewById(R.id.progressBar);
 
         buttonReg.setOnClickListener((new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                progBar.setVisibility(View.VISIBLE);
+                progressBar.setVisibility(View.VISIBLE);
                 String email, password;
                 email = String.valueOf(editTextEmail.getText());
                 password = String.valueOf(editTextPassword.getText());
@@ -59,7 +57,7 @@ public class Register extends AppCompatActivity {
                             @Override
                             public void onComplete(@NonNull Task<AuthResult> task) {
                                 if (task.isSuccessful()) {
-                                    progBar.setVisibility(View.GONE);
+                                    progressBar.setVisibility(View.GONE);
                                     // Sign in success, update UI with the signed-in user's information
 //                                    Log.d(TAG, "createUserWithEmail:success");
 //                                    FirebaseUser user = mAuth.getCurrentUser();
@@ -67,7 +65,7 @@ public class Register extends AppCompatActivity {
                                     Toast.makeText(Register.this, "Account Created.",
                                             Toast.LENGTH_SHORT).show();
                                 } else {
-                                    progBar.setVisibility(View.GONE);
+                                    progressBar.setVisibility(View.GONE);
                                     // If sign in fails, display a message to the user.
 //                                    Log.w(TAG, "createUserWithEmail:failure", task.getException());
                                     Toast.makeText(Register.this, "Authentication failed.",

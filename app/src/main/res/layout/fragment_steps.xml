@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".StepsFragment">
+
+    <!-- TODO: Update blank fragment layout -->
+
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_marginVertical="50dp">
+    <ProgressBar
+        android:id="@+id/progressBar"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="300dp"
+        android:layout_height="300dp"
+        android:max="8000"
+        android:layout_centerHorizontal="true"
+        android:layout_marginVertical="10dp"
+        android:background="@drawable/circle_shape"
+        android:progressDrawable="@drawable/circle_bar"/>
+
+        <TextView
+            android:id="@+id/stepsText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Steps"
+            android:textSize="25dp"
+            android:textColor="#B50C00"
+            android:textStyle="bold"
+            android:layout_marginVertical="150dp"
+            android:layout_centerHorizontal="true"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Goal: 8000"
+            android:textColor="#B50C00"
+            android:layout_marginTop="220dp"
+            android:layout_marginLeft="100dp"
+            android:textSize="20dp">
+        </TextView>
+
+        </RelativeLayout>
+    
+
+</RelativeLayout>

@@ -3,16 +3,25 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/fitness_background"
     tools:context=".HomeFragment">
 
     <!-- TODO: Update blank fragment layout -->
+
+    <View
+        android:id="@+id/topDivider"
+        android:layout_width="match_parent"
+        android:layout_height="100dp"
+        android:background="?android:attr/listDivider"
+        android:visibility="visible" />
+
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Home Fragment"
+        android:layout_gravity="center_horizontal"
+        android:clickable="false"
+        android:text="Motion Flow"
         android:textColor="@color/white"
         android:textSize="50dp"
-        android:layout_gravity="center"/>
+        android:visibility="visible" />
 
 </FrameLayout>

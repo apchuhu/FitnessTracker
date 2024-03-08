@@ -3,9 +3,42 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:theme="@style/Base.Theme.FitnessTracker"
     tools:context=".HomeFragment">
 
     <!-- TODO: Update blank fragment layout -->
+
+    <ProgressBar
+        android:id="@+id/progressBar2"
+        style="?android:attr/progressBarStyle"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:indeterminateBehavior="repeat"
+        android:indeterminateOnly="true"
+        android:max="100"
+        android:mirrorForRtl="false"
+        android:progress="50"
+        android:progressTint="@color/darkRed"
+        android:translationX="30dp"
+        android:translationY="100dp" />
+
+    <ProgressBar
+        android:id="@+id/progressBar3"
+        style="?android:attr/progressBarStyle"
+        android:progressTint="@color/darkRed"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:translationX="160dp"
+        android:translationY="100dp" />
+
+    <ProgressBar
+        android:id="@+id/progressBar4"
+        style="?android:attr/progressBarStyle"
+        android:progressTint="@color/darkRed"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:translationX="285dp"
+        android:translationY="100dp" />
 
     <View
         android:id="@+id/topDivider"

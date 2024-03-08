@@ -17,6 +17,7 @@ import com.google.android.gms.tasks.Task;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 
 public class Register extends AppCompatActivity {
 
@@ -29,6 +30,17 @@ public class Register extends AppCompatActivity {
 
     private TextView textView;
 
+    @Override
+    public void onStart() {
+        super.onStart();
+        // Check if user is signed in (non-null) and update UI accordingly.
+        FirebaseUser currentUser = mAuth.getCurrentUser();
+        if(currentUser != null){
+            Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+            startActivity(intent);
+            finish();
+        }
+    }
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -60,9 +72,11 @@ public class Register extends AppCompatActivity {
 
                 if (TextUtils.isEmpty(email)){
                     Toast.makeText(Register.this, "Enter a Email", Toast.LENGTH_SHORT).show();
+                    return;
                 }
                 if (TextUtils.isEmpty(password)){
                     Toast.makeText(Register.this, "Enter a Password", Toast.LENGTH_SHORT).show();
+                    return;
                 }
 
                 // Code used to check and respond to successful and failed account creations

@@ -1,5 +1,11 @@
 package com.example.fitnesstracker;
 
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
@@ -7,13 +13,16 @@ import androidx.fragment.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ProgressBar;
+import android.widget.TextView;
+import android.widget.Toast;
 
 /**
  * A simple {@link Fragment} subclass.
  * Use the {@link StepsFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class StepsFragment extends Fragment {
+public class StepsFragment extends Fragment implements SensorEventListener {
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -23,6 +32,13 @@ public class StepsFragment extends Fragment {
     // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
+
+    private int mTotalSteps = 0;
+    private int mPreTotalSteps = 0;
+    private ProgressBar mProgressBar;
+    private TextView mStepText;
+    private SensorManager mSensManager;
+    private Sensor mStepSensor;
 
     public StepsFragment() {
         // Required empty public constructor
@@ -59,6 +75,83 @@ public class StepsFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_steps, container, false);
+        View view = inflater.inflate(R.layout.fragment_steps, container, false);
+        mProgressBar = view.findViewById(R.id.progressBar);
+        mStepText = view.findViewById(R.id.stepsText);
+
+        resetSteps();
+        loadData();
+        mSensManager = (SensorManager) requireActivity().getSystemService(Context.SENSOR_SERVICE);
+        mStepSensor = mSensManager.getDefaultSensor(Sensor.TYPE_STEP_COUNTER);
+        return view;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (mStepSensor == null) {
+            Toast.makeText(requireContext(), "Device has no sensor", Toast.LENGTH_SHORT).show();
+        } else {
+            mSensManager.registerListener(this, mStepSensor, SensorManager.SENSOR_DELAY_NORMAL);
+        }
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        mSensManager.unregisterListener(this);
+    }
+
+    private void resetSteps(){
+        if (mStepText != null) {
+            mStepText.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Toast.makeText(requireContext(), "long hold to rest", Toast.LENGTH_SHORT).show();
+                }
+            });
+
+            mStepText.setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View v) {
+                    mPreTotalSteps = mTotalSteps;
+                    mStepText.setText("0");
+                    mProgressBar.setProgress(0);
+                    saveData();
+                    return true;
+                }
+            });
+        } else {
+            // Log an error or display a message to help identify the issue
+            Toast.makeText(requireContext(), "stepsText is null", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void saveData(){
+        SharedPreferences sharedPref = requireActivity().getSharedPreferences("myPref", Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPref.edit();
+        editor.putString("key1", String.valueOf(mPreTotalSteps));
+        editor.apply();
+    }
+
+    private void loadData(){
+        SharedPreferences sharedPref = requireActivity().getSharedPreferences("myPref", Context.MODE_PRIVATE);
+        String savedNum = sharedPref.getString("key1", "0");
+        mPreTotalSteps = Integer.parseInt(savedNum);
+    }
+
+    @Override
+    public void onSensorChanged(SensorEvent event) {
+        if (event.sensor.getType() == Sensor.TYPE_STEP_COUNTER) {
+            mTotalSteps = (int) event.values[0];
+            int currentSteps = mTotalSteps - mPreTotalSteps;
+            mStepText.setText(String.valueOf(currentSteps));
+            mProgressBar.setProgress(currentSteps);
+        }
+    }
+
+    @Override
+    public void onAccuracyChanged(Sensor sensor, int accuracy) {
+
     }
 }

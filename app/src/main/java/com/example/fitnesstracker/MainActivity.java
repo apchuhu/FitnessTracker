@@ -46,6 +46,9 @@ public class MainActivity extends AppCompatActivity{
             else if (itemId == R.id.steps){
                 replaceFragment(new StepsFragment());
             }
+            else if (itemId == R.id.account){
+                replaceFragment(new AccountFragment());
+            }
             return true;
         });
     }

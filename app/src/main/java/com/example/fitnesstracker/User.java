@@ -1,5 +1,7 @@
 package com.example.fitnesstracker;
 
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.IgnoreExtraProperties;
 
 @IgnoreExtraProperties

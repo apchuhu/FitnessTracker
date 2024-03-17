@@ -27,10 +27,6 @@ public class PlanFragment extends Fragment {
     private String mParam1;
     private String mParam2;
 
-    // Creating a private variable for the database test
-    private DatabaseReference mDatabase;
-
-
     public PlanFragment() {
         // Required empty public constructor
     }
@@ -60,9 +56,6 @@ public class PlanFragment extends Fragment {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
-        // Playing with the Firebase Database
-        // Extra Info: Pass a custom Java object, if the class that defines it has a default constructor that takes no arguments and has public getters for the properties to be assigned.
-        mDatabase = FirebaseDatabase.getInstance().getReference();
     }
 
     @Override
@@ -72,10 +65,5 @@ public class PlanFragment extends Fragment {
         return inflater.inflate(R.layout.fragment_plan, container, false);
     }
 
-    // Method that should create a new users with a id, name, and email.
-    public void writeNewUser(String userId, String name, String email) {
-        User user = new User(name, email);
 
-        mDatabase.child("users").child(userId).setValue(user);
-    }
 }

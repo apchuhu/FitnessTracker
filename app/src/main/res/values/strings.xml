@@ -12,11 +12,5 @@
     <string name="steps">Steps</string>
     <string name="distance">Distance</string>
     <string name="calories">Calories</string>
-
-    <string-array name="tracker_name">
-        <item>Steps</item>
-        <item>Calories</item>
-        <item>Distance</item>
-    </string-array>
-
+    <string name="logout">Logout</string>
 </resources>

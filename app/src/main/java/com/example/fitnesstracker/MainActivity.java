@@ -7,6 +7,8 @@ import androidx.fragment.app.FragmentTransaction;
 
 import com.example.fitnesstracker.databinding.ActivityMainBinding;
 import com.example.fitnesstracker.R;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 import android.app.Activity;
 import android.content.Context;
@@ -21,17 +23,9 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class MainActivity extends AppCompatActivity implements SensorEventListener {
+public class MainActivity extends AppCompatActivity{
 
     ActivityMainBinding binding;
-
-    private SensorManager sensManager = null;
-    private Sensor stepSensor;
-    private int totalSteps = 0;
-    private int preTotalSteps = 0;
-    private ProgressBar progressBar;
-    private TextView stepText;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -54,16 +48,11 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             else if (itemId == R.id.steps){
                 replaceFragment(new StepsFragment());
             }
+            else if (itemId == R.id.account){
+                replaceFragment(new AccountFragment());
+            }
             return true;
         });
-
-        progressBar = findViewById(R.id.progressBar);
-        stepText = findViewById(R.id.stepsText);
-
-        resetSteps();
-        loadData();
-        sensManager = (SensorManager)getSystemService(SENSOR_SERVICE);
-        stepSensor = sensManager.getDefaultSensor(Sensor.TYPE_STEP_COUNTER);
     }
 
     private void replaceFragment(Fragment fragment){
@@ -74,74 +63,9 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     }
 
 
-    protected void onResume(){
-        super.onResume();
 
-        if(stepSensor == null){
-            Toast.makeText(this, "Device has no sensor", Toast.LENGTH_SHORT).show();
-        }
-        else {
-            sensManager.registerListener(this, stepSensor, SensorManager.SENSOR_DELAY_NORMAL);
-        }
-    }
-
-    protected void onPause(){
-        super.onPause();
-        sensManager.unregisterListener(this);
-    }
-    @Override
-    public void onSensorChanged(SensorEvent event) {
-        if(event.sensor.getType() == Sensor.TYPE_STEP_COUNTER){
-            totalSteps = (int) event.values[0];
-            int currentSteps = totalSteps - preTotalSteps;
-            stepText.setText(String.valueOf(currentSteps));
-
-            progressBar.setProgress(currentSteps);
-        }
-    }
-
-    //Mainly for testing
-    private void resetSteps(){
-        if (stepText != null) {
-            stepText.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    Toast.makeText(MainActivity.this, "long hold to rest", Toast.LENGTH_SHORT).show();
-                }
-            });
-
-            stepText.setOnLongClickListener(new View.OnLongClickListener() {
-                @Override
-                public boolean onLongClick(View v) {
-                    preTotalSteps = totalSteps;
-                    stepText.setText("0");
-                    progressBar.setProgress(0);
-                    saveData();
-                    return true;
-                }
-            });
-        } else {
-            // Log an error or display a message to help identify the issue
-            Toast.makeText(this, "stepsText is null", Toast.LENGTH_SHORT).show();
-        }
-    }
-
-    private void saveData(){
-        SharedPreferences sharedPref = getSharedPreferences("myPref", Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = sharedPref.edit();
-        editor.putString("key1", String.valueOf(preTotalSteps));
-        editor.apply();
-    }
-
-    private void loadData(){
-        SharedPreferences sharedPref = getSharedPreferences("myPref", Context.MODE_PRIVATE);
-        int savedNum = (int) sharedPref.getFloat("key1", 0f);
-        preTotalSteps = savedNum;
-    }
-
-    @Override
-    public void onAccuracyChanged(Sensor sensor, int accuracy) {
-
-    }
-
+//    public void displayInput() {
+//        String userInput = editTextInput.getText().toString();
+//        textViewOutput.setText("User input: " + userInput);
+//    }
 }

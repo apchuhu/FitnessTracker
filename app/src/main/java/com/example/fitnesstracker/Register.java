@@ -18,13 +18,22 @@ import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+
+import java.util.HashMap;
+import java.util.Random;
 
 public class Register extends AppCompatActivity {
 
-    private TextInputEditText editTextEmail, editTextPassword;
+    private TextInputEditText editTextUsername, editTextEmail, editTextPassword;
     private Button buttonReg;
-    //creation of the Firebase object
+    //creation of the Firebase objects
     private FirebaseAuth mAuth;
+
+    // Creating a private variable for the database test
+    private DatabaseReference mDatabase;
 
     private ProgressBar progressBar;
 
@@ -47,6 +56,11 @@ public class Register extends AppCompatActivity {
         setContentView(R.layout.activity_register);
         // Creation of the Firebase instance
         mAuth = FirebaseAuth.getInstance();
+        // Playing with the Firebase Database
+        // Extra Info: Pass a custom Java object, if the class that defines it has a default constructor
+        // that takes no arguments and has public getters for the properties to be assigned.
+        mDatabase = FirebaseDatabase.getInstance().getReference();
+        editTextUsername = findViewById(R.id.username);
         editTextEmail = findViewById(R.id.email);
         editTextPassword = findViewById(R.id.password);
         buttonReg = findViewById(R.id.button_register);
@@ -67,10 +81,15 @@ public class Register extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 progressBar.setVisibility(View.VISIBLE);
-                String email, password;
+                String username, email, password;
+                username = String.valueOf(editTextUsername.getText());
                 email = String.valueOf(editTextEmail.getText());
                 password = String.valueOf(editTextPassword.getText());
 
+                if (TextUtils.isEmpty(username)){
+                    Toast.makeText(Register.this, "Enter a Username", Toast.LENGTH_SHORT).show();
+                    return;
+                }
                 if (TextUtils.isEmpty(email)){
                     Toast.makeText(Register.this, "Enter a Email", Toast.LENGTH_SHORT).show();
                     return;
@@ -87,6 +106,7 @@ public class Register extends AppCompatActivity {
                             public void onComplete(@NonNull Task<AuthResult> task) {
                                 progressBar.setVisibility(View.GONE);
                                 if (task.isSuccessful()) {
+                                    createNewDBUser(createNewUserId(),username,email);
                                     // Sign in success, update UI with the signed-in user's information
 //                                    Log.d(TAG, "createUserWithEmail:success");
 //                                    FirebaseUser user = mAuth.getCurrentUser();
@@ -109,5 +129,34 @@ public class Register extends AppCompatActivity {
 
             }
         }));
+    }
+    // Method that should create a new users randomized userID and check to make
+    // sure that it is not the same as any other userID in the database.
+    public String createNewUserId() {
+//        ValueEventListener
+        Random random = new Random();
+        Integer max = 99999;
+        Integer min = 0;
+        String userID = "N/A";
+//        String userID =
+//
+//        while((!userID.equals("N/A") && ))
+        userID = String.valueOf(Math.abs(random.nextInt(max - min + 1) + min));
+        return userID;
+
+    }
+
+    // Method that should create a new users with a id, name, and email in a layered view in the DB.
+    public void createNewDBUser(String userId, String username, String email) {
+        User user = new User(username, email);
+        HashMap<String, Object> userIdMap = new HashMap<>();
+
+        userIdMap.put("UserID", userId);
+        userIdMap.put("Username", user.getUsername());
+        userIdMap.put("Email", user.getEmail());
+
+
+
+        mDatabase.child("users").child(userId).setValue(userIdMap);
     }
 }

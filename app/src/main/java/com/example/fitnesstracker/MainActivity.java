@@ -7,6 +7,8 @@ import androidx.fragment.app.FragmentTransaction;
 
 import com.example.fitnesstracker.databinding.ActivityMainBinding;
 import com.example.fitnesstracker.R;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 import android.app.Activity;
 import android.content.Context;
@@ -59,4 +61,11 @@ public class MainActivity extends AppCompatActivity{
         fragmentTransaction.replace(R.id.frame_layout, fragment);
         fragmentTransaction.commit();
     }
+
+
+
+//    public void displayInput() {
+//        String userInput = editTextInput.getText().toString();
+//        textViewOutput.setText("User input: " + userInput);
+//    }
 }

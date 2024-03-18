@@ -11,35 +11,28 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
 import android.app.Activity;
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.Button;
-import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity{
 
     ActivityMainBinding binding;
-    private EditText editTextInput;
-    private TextView textViewOutput;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
-        replaceFragment(new HomeFragment());
 
-//        editTextInput = findViewById(R.id.editText);
-//        textViewOutput = findViewById(R.id.displayText);
-//
-//        Button buttonDisplay = findViewById(R.id.submitButton);
-//        buttonDisplay.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                displayInput();
-//            }
-//        });
+        replaceFragment(new HomeFragment());
 
         binding.bottomNavigationView.setOnItemSelectedListener(item -> {
             int itemId = item.getItemId();
@@ -54,6 +47,9 @@ public class MainActivity extends AppCompatActivity {
             }
             else if (itemId == R.id.steps){
                 replaceFragment(new StepsFragment());
+            }
+            else if (itemId == R.id.account){
+                replaceFragment(new AccountFragment());
             }
             return true;
         });

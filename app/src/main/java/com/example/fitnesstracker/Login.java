@@ -1,5 +1,6 @@
 package com.example.fitnesstracker;
 
+
 import static android.content.ContentValues.TAG;
 
 import androidx.annotation.NonNull;
@@ -9,6 +10,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
+
 import android.view.View;
 import android.widget.Button;
 import android.widget.ProgressBar;
@@ -23,17 +25,17 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
 public class Login extends AppCompatActivity {
-
     private TextInputEditText editTextEmail, editTextPassword;
     private Button buttonLogin;
     //creation of the Firebase object
     private FirebaseAuth mAuth;
+
     private ProgressBar progressBar;
-    private TextView textView;
+    TextView textView;
+
     @Override
     public void onStart() {
         super.onStart();
-        // Check if user is signed in (non-null) and update UI accordingly.
         FirebaseUser currentUser = mAuth.getCurrentUser();
         if(currentUser != null){
             Intent intent = new Intent(getApplicationContext(), MainActivity.class);
@@ -51,7 +53,7 @@ public class Login extends AppCompatActivity {
         editTextPassword = findViewById(R.id.password);
         buttonLogin = findViewById(R.id.button_login);
         progressBar = findViewById(R.id.progressBar);
-        textView = findViewById(R.id.RegisterNow);
+        textView = findViewById(R.id.registerNow);
 
         textView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -104,6 +106,7 @@ public class Login extends AppCompatActivity {
                               }
                           }
                       });
+
             }
         });
     }

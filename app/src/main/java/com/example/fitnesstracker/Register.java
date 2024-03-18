@@ -56,6 +56,7 @@ public class Register extends AppCompatActivity {
         textView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+
                 Intent intent = new Intent(getApplicationContext(), Login.class);
                 startActivity(intent);
                 finish();
@@ -84,16 +85,19 @@ public class Register extends AppCompatActivity {
                         .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                             @Override
                             public void onComplete(@NonNull Task<AuthResult> task) {
+                                progressBar.setVisibility(View.GONE);
                                 if (task.isSuccessful()) {
-                                    progressBar.setVisibility(View.GONE);
                                     // Sign in success, update UI with the signed-in user's information
 //                                    Log.d(TAG, "createUserWithEmail:success");
 //                                    FirebaseUser user = mAuth.getCurrentUser();
 //                                    updateUI(user);
                                     Toast.makeText(Register.this, "Account Created.",
                                             Toast.LENGTH_SHORT).show();
+                                    Intent intent = new Intent(getApplicationContext(), Login.class);
+                                    startActivity(intent);
+                                    finish();
                                 } else {
-                                    progressBar.setVisibility(View.GONE);
+//                                    progressBar.setVisibility(View.GONE);
                                     // If sign in fails, display a message to the user.
 //                                    Log.w(TAG, "createUserWithEmail:failure", task.getException());
                                     Toast.makeText(Register.this, "Authentication failed.",

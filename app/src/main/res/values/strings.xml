@@ -8,5 +8,9 @@
     <string name="register">Register</string>
     <string name="click_to_login">Click to login</string>
     <string name="click_to_register">Click to Register</string>
+    <string name="motion_flow">Motion Flow</string>
+    <string name="steps">Steps</string>
+    <string name="distance">Distance</string>
+    <string name="calories">Calories</string>
     <string name="logout">Logout</string>
 </resources>

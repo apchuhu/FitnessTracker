@@ -9,6 +9,14 @@
     android:gravity="center"
     tools:context=".Register">
 
+    <ImageView
+        android:id="@+id/imageView"
+        android:layout_width="197dp"
+        android:layout_height="100dp"
+        android:translationY="-40dp"
+        app:srcCompat="@drawable/motionflowlogo"
+        android:contentDescription="MotionFlowLogo" />
+
     <TextView
         android:text="@string/register"
         android:textSize="25dp"

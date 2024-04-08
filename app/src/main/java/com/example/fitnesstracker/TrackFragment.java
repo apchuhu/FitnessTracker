@@ -1,6 +1,7 @@
 package com.example.fitnesstracker;
 
 import android.annotation.SuppressLint;
+import android.graphics.Color;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
@@ -77,6 +78,7 @@ public class TrackFragment extends Fragment implements UserInputFragment.EntryIn
         entryCount++;
         EditText newEntry = new EditText(getContext());
         newEntry.setText(entryText);
+        newEntry.setTextColor(Color.WHITE);
         newEntry.setEnabled(false);
         LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);

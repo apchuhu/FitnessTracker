@@ -107,6 +107,6 @@ public class TrackFragment extends Fragment implements UserInputFragment.EntryIn
     private void showEntryInputDialog() {
         UserInputFragment dialogFragment = new UserInputFragment();
         dialogFragment.setTargetFragment(this, 0);
-        dialogFragment.show(getParentFragmentManager(), "EntryInputDialogFragment");
+        dialogFragment.show(getParentFragmentManager(), "UserInputFragment");
     }
 }

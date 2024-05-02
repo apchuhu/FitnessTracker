@@ -154,4 +154,11 @@ public class StepsFragment extends Fragment implements SensorEventListener {
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
 
     }
+    public int getmTotalSteps() {
+        return mTotalSteps;
+    }
+
+    public int getmPreTotalSteps() {
+        return mPreTotalSteps;
+    }
 }

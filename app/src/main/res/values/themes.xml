@@ -13,5 +13,8 @@
 <!--        <item name="android:colorAccent">@color/darkRed</item>-->
     </style>
 
+    <style name="Theme.Login" parent="Theme.MaterialComponents.NoActionBar">
+        <item name=""
+    </style>
     <style name="Theme.FitnessTracker" parent="Base.Theme.FitnessTracker" />
 </resources>

@@ -7,6 +7,7 @@ import androidx.fragment.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ProgressBar;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -23,6 +24,7 @@ public class HomeFragment extends Fragment {
     // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
+    private ProgressBar bar;
 
     public HomeFragment() {
         // Required empty public constructor
@@ -58,7 +60,14 @@ public class HomeFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        View view = inflater.inflate(R.layout.fragment_home, container, false);
+        bar = view.findViewById(R.id.progressBar2);
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_home, container, false);
+        return view;
+    }
+
+    public void updateProgress(){
+        StepsFragment steps = new StepsFragment();
+        bar.setProgress(steps.getmTotalSteps() - steps.getmPreTotalSteps());
     }
 }

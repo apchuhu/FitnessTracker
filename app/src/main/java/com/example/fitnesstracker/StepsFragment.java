@@ -56,6 +56,7 @@ public class StepsFragment extends Fragment implements SensorEventListener {
     private FirebaseAuth mAuth;
     private DatabaseReference mDatabase;
     private TextView userText;
+    private DatabaseReference mStepsRef;
 
     public StepsFragment() {
         // Required empty public constructor
@@ -104,6 +105,7 @@ public class StepsFragment extends Fragment implements SensorEventListener {
         loadData();
         mSensManager = (SensorManager) requireActivity().getSystemService(Context.SENSOR_SERVICE);
         mStepSensor = mSensManager.getDefaultSensor(Sensor.TYPE_STEP_COUNTER);
+        mStepsRef = FirebaseDatabase.getInstance().getReference().child("steps");
         return view;
     }
 
@@ -153,6 +155,8 @@ public class StepsFragment extends Fragment implements SensorEventListener {
         SharedPreferences.Editor editor = sharedPref.edit();
         editor.putString("key1", String.valueOf(mPreTotalSteps));
         editor.apply();
+
+
     }
 
     private void loadData(){
@@ -161,6 +165,7 @@ public class StepsFragment extends Fragment implements SensorEventListener {
         mPreTotalSteps = Integer.parseInt(savedNum);
     }
 
+
     @Override
     public void onSensorChanged(SensorEvent event) {
         if (event.sensor.getType() == Sensor.TYPE_STEP_COUNTER) {
@@ -168,6 +173,7 @@ public class StepsFragment extends Fragment implements SensorEventListener {
             int currentSteps = mTotalSteps - mPreTotalSteps;
             mStepText.setText(String.valueOf(currentSteps));
             mProgressBar.setProgress(currentSteps);
+            mStepsRef.setValue(currentSteps);
         }
     }
 

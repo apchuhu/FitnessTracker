@@ -106,7 +106,7 @@ public class Register extends AppCompatActivity {
                             public void onComplete(@NonNull Task<AuthResult> task) {
                                 progressBar.setVisibility(View.GONE);
                                 if (task.isSuccessful()) {
-                                    createNewDBUser(createNewUserId(),username,email);
+                                    createNewDBUser(User.createNewUserId(),username,email);
                                     // Sign in success, update UI with the signed-in user's information
 //                                    Log.d(TAG, "createUserWithEmail:success");
 //                                    FirebaseUser user = mAuth.getCurrentUser();
@@ -130,28 +130,13 @@ public class Register extends AppCompatActivity {
             }
         }));
     }
-    // Method that should create a new users randomized userID and check to make
-    // sure that it is not the same as any other userID in the database.
-    public String createNewUserId() {
-//        ValueEventListener
-        Random random = new Random();
-        Integer max = 99999;
-        Integer min = 0;
-        String userID = "N/A";
-//        String userID =
-//
-//        while((!userID.equals("N/A") && ))
-        userID = String.valueOf(Math.abs(random.nextInt(max - min + 1) + min));
-        return userID;
-
-    }
 
     // Method that should create a new users with a id, name, and email in a layered view in the DB.
     public void createNewDBUser(String userId, String username, String email) {
-        User user = new User(username, email);
+        User user = new User(userId, username, email);
         HashMap<String, Object> userIdMap = new HashMap<>();
 
-        userIdMap.put("UserID", userId);
+        userIdMap.put("UserID", user.getUserId());
         userIdMap.put("Username", user.getUsername());
         userIdMap.put("Email", user.getEmail());
 

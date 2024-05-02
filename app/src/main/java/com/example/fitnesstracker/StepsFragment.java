@@ -22,7 +22,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -30,6 +29,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -99,7 +99,7 @@ public class StepsFragment extends Fragment implements SensorEventListener {
         mStepText = view.findViewById(R.id.stepsText);
         userText = view.findViewById(R.id.user_Details);
         mAuth = FirebaseAuth.getInstance();
-        mDatabase = FirebaseDatabase.getInstance().getReference();
+        mDatabase = FirebaseDatabase.getInstance().getReference().child("users");
         userText.setText(checkForDBUser());
         resetSteps();
         loadData();
@@ -193,21 +193,21 @@ public class StepsFragment extends Fragment implements SensorEventListener {
     // if the user is not found return not logged in.
     public String checkForDBUser() {
 
-//        ValueEventListener dataBaseListener = new ValueEventListener() {
-//            @Override
-//            public void onDataChange(@NonNull DataSnapshot snapshot) {
-//                // Get User object and use the values to update the UI
-//                User user = snapshot.getValue(User.class);
-//            }
-//
-//            @Override
-//            public void onCancelled(@NonNull DatabaseError error) {
-//                // Getting Post failed, log a message
-//                Log.w(TAG, "loadPost:onCancelled", error.toException());
-//            }
-//        };
-//
-//        ValueEventListener user = mDatabase.addValueEventListener(dataBaseListener);
+        mDatabase.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                // Get User object and use the values to update the UI
+                String users = snapshot.getChildren().toString();
+                Log.d(TAG, "Users are: " + users);
+            }
+
+            @Override
+            public void onCancelled(DatabaseError error) {
+
+                // Getting Post failed, log a message
+                Log.w(TAG, "Failed to read value: ", error.toException());
+            }
+        });
 
         String user = mAuth.getCurrentUser().getEmail();
 

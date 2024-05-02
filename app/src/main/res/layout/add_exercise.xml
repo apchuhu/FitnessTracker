@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="20dp">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Exercise Details"
+        android:textSize="18dp"/>
+
+    <Spinner
+        android:id="@+id/spinnerExerciseTask"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:entries="@array/taskTypes" />
+
+    <EditText
+        android:id="@+id/editWeight"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Enter Weight Lifted:"
+        android:inputType="number" />
+
+    <EditText
+        android:id="@+id/editSets"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Enter Sets:"
+        android:inputType="number" />
+
+    <EditText
+        android:id="@+id/editReps"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Enter Reps:"
+        android:inputType="number" />
+
+</LinearLayout>

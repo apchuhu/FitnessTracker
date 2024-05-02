@@ -5,6 +5,12 @@
     android:orientation="vertical"
     android:padding="20dp">
     
+    <Spinner
+        android:id="@+id/spinnerTask"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:entries="@array/taskTypes" />
+    
     <EditText
         android:id="@+id/editEntry"
         android:layout_width="match_parent"

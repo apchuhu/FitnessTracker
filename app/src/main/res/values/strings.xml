@@ -13,4 +13,6 @@
     <string name="distance">Distance</string>
     <string name="calories">Calories</string>
     <string name="logout">Logout</string>
+    <string name="username">Username</string>
+    <string name="forgot_password">Forgot Password</string>
 </resources>

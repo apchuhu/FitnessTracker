@@ -1,21 +1,30 @@
 package com.example.fitnesstracker;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
+import android.preference.DialogPreference;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.CalendarView;
+import android.widget.EditText;
+import android.widget.ListView;
 import android.widget.Toast;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Locale;
 import java.util.SimpleTimeZone;
 
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
@@ -36,6 +45,10 @@ public class PlanFragment extends Fragment {
     private String mParam2;
     CalendarView calendarView;
     Calendar calendar;
+    private FloatingActionButton floatingActionButton;
+    private ListView entryListView;
+    private ArrayList<String> entryList;
+    private ArrayAdapter<String> entryAdapter;
 
     public PlanFragment() {
         // Required empty public constructor
@@ -74,7 +87,7 @@ public class PlanFragment extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_plan, container, false);
 
-
+        //Adds the calendar
         calendarView = view.findViewById(R.id.calendarView);
         calendar = Calendar.getInstance();
         //setDate(2024, 3, 17);
@@ -86,6 +99,21 @@ public class PlanFragment extends Fragment {
                 Toast.makeText(requireContext(), month + 1 + "/" + dayOfMonth + "/" + year, Toast.LENGTH_SHORT).show();
             }
         });
+
+        //Button to create a popup
+        floatingActionButton = view.findViewById(R.id.floatingActionButton);
+        floatingActionButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showAddItem(inflater);
+            }
+        });
+
+        //List view
+        entryList = new ArrayList<>();
+        entryAdapter = new ArrayAdapter<>(requireContext(), android.R.layout.simple_list_item_1, entryList);
+        entryListView = view.findViewById(R.id.entryList);
+        entryListView.setAdapter(entryAdapter);
 
         return view;
     }
@@ -99,7 +127,7 @@ public class PlanFragment extends Fragment {
         calendarView.setDate(millSec);
     }
 
-    public void getDate(){
+    public void getDate() {
         long date = calendarView.getDate();
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("MM/dd/yy", Locale.getDefault());
         calendar.setTimeInMillis(date);
@@ -107,5 +135,35 @@ public class PlanFragment extends Fragment {
         Toast.makeText(requireContext(), selectDate, Toast.LENGTH_SHORT).show();
     }
 
+    private void showAddItem(LayoutInflater inflater){
+        AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
+        LayoutInflater popup = requireActivity().getLayoutInflater();
+        View popupView = inflater.inflate(R.layout.add_item, null);
+        final EditText editText = popupView.findViewById(R.id.editEntry);
 
+        builder.setView(popupView).setTitle("Add Entry").
+                setPositiveButton("Add", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        String entry = editText.getText().toString().trim();
+                        if (!entry.isEmpty()){
+                            entryList.add(entry);
+                            entryAdapter.notifyDataSetChanged();
+                            Toast.makeText(requireContext(), "Entry Added", Toast.LENGTH_SHORT).show();
+                            Log.d("EntryList", "Updated List: " + entryList.toString());
+                            dialog.dismiss();
+                        }
+                        else {
+                            Toast.makeText(requireContext(), "Entry is empty try again.", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                }).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.cancel();
+                    }
+                });
+        AlertDialog dialog = builder.create();
+        dialog.show();
+    }
 }

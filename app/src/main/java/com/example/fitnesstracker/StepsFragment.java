@@ -1,5 +1,7 @@
 package com.example.fitnesstracker;
 
+import static android.content.ContentValues.TAG;
+
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.hardware.Sensor;
@@ -8,14 +10,26 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+
+import java.util.ArrayList;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -39,6 +53,10 @@ public class StepsFragment extends Fragment implements SensorEventListener {
     private TextView mStepText;
     private SensorManager mSensManager;
     private Sensor mStepSensor;
+    private FirebaseAuth mAuth;
+    private DatabaseReference mDatabase;
+    private TextView userText;
+    private DatabaseReference mStepsRef;
 
     public StepsFragment() {
         // Required empty public constructor
@@ -68,6 +86,7 @@ public class StepsFragment extends Fragment implements SensorEventListener {
         if (getArguments() != null) {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
+
         }
     }
 
@@ -78,11 +97,15 @@ public class StepsFragment extends Fragment implements SensorEventListener {
         View view = inflater.inflate(R.layout.fragment_steps, container, false);
         mProgressBar = view.findViewById(R.id.progressBar);
         mStepText = view.findViewById(R.id.stepsText);
-
+        userText = view.findViewById(R.id.user_Details);
+        mAuth = FirebaseAuth.getInstance();
+        mDatabase = FirebaseDatabase.getInstance().getReference();
+        userText.setText(checkForDBUser());
         resetSteps();
         loadData();
         mSensManager = (SensorManager) requireActivity().getSystemService(Context.SENSOR_SERVICE);
         mStepSensor = mSensManager.getDefaultSensor(Sensor.TYPE_STEP_COUNTER);
+        mStepsRef = FirebaseDatabase.getInstance().getReference().child("steps");
         return view;
     }
 
@@ -132,6 +155,8 @@ public class StepsFragment extends Fragment implements SensorEventListener {
         SharedPreferences.Editor editor = sharedPref.edit();
         editor.putString("key1", String.valueOf(mPreTotalSteps));
         editor.apply();
+
+
     }
 
     private void loadData(){
@@ -140,6 +165,7 @@ public class StepsFragment extends Fragment implements SensorEventListener {
         mPreTotalSteps = Integer.parseInt(savedNum);
     }
 
+
     @Override
     public void onSensorChanged(SensorEvent event) {
         if (event.sensor.getType() == Sensor.TYPE_STEP_COUNTER) {
@@ -147,6 +173,7 @@ public class StepsFragment extends Fragment implements SensorEventListener {
             int currentSteps = mTotalSteps - mPreTotalSteps;
             mStepText.setText(String.valueOf(currentSteps));
             mProgressBar.setProgress(currentSteps);
+            mStepsRef.setValue(currentSteps);
         }
     }
 
@@ -160,5 +187,34 @@ public class StepsFragment extends Fragment implements SensorEventListener {
 
     public int getmPreTotalSteps() {
         return mPreTotalSteps;
+    // Method should find one user id in the database
+    // if the user is found return the users information
+    // if the user is not found return not logged in.
+    public String checkForDBUser() {
+
+//        ValueEventListener dataBaseListener = new ValueEventListener() {
+//            @Override
+//            public void onDataChange(@NonNull DataSnapshot snapshot) {
+//                // Get User object and use the values to update the UI
+//                User user = snapshot.getValue(User.class);
+//            }
+//
+//            @Override
+//            public void onCancelled(@NonNull DatabaseError error) {
+//                // Getting Post failed, log a message
+//                Log.w(TAG, "loadPost:onCancelled", error.toException());
+//            }
+//        };
+//
+//        ValueEventListener user = mDatabase.addValueEventListener(dataBaseListener);
+
+        String user = mAuth.getCurrentUser().getEmail();
+
+        if ((user != null)) {
+            return "Progress for " + user;
+        }
+        else {
+            return "Progress for Guest";
+        }
     }
 }

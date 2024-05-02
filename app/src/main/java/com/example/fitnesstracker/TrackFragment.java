@@ -1,13 +1,21 @@
 package com.example.fitnesstracker;
 
+import android.annotation.SuppressLint;
+import android.graphics.Color;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
 
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
+import android.widget.FrameLayout;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
@@ -16,7 +24,7 @@ import com.google.firebase.database.FirebaseDatabase;
  * Use the {@link TrackFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class TrackFragment extends Fragment {
+public class TrackFragment extends Fragment implements UserInputFragment.EntryInputListener{
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -27,8 +35,9 @@ public class TrackFragment extends Fragment {
     private String mParam1;
     private String mParam2;
 
-    // Creating a private variable for the database test
-    private DatabaseReference mDatabase;
+    private LinearLayout entriesLayout;
+    private EditText entryEditText;
+    private int entryCount = 0;
 
     public TrackFragment() {
         // Required empty public constructor
@@ -52,30 +61,54 @@ public class TrackFragment extends Fragment {
         return fragment;
     }
 
+    @SuppressLint("WrongViewCast")
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        // Playing with the Firebase Database
-        // Extra Info: Pass a custom Java object, if the class that defines it has a default constructor that takes no arguments and has public getters for the properties to be assigned.
-        mDatabase = FirebaseDatabase.getInstance().getReference();
-
         if (getArguments() != null) {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
     }
 
+    public void addEntry(String entryText) {
+        if (entryText.isEmpty()) {
+            return;
+        }
+        entryCount++;
+        EditText newEntry = new EditText(getContext());
+        newEntry.setText(entryText);
+        newEntry.setTextColor(Color.WHITE);
+        newEntry.setEnabled(false);
+        LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        layoutParams.setMargins(8, 8, 8, 8);
+        newEntry.setLayoutParams(layoutParams);
+        entriesLayout.addView(newEntry);
+        entryEditText.setText("");
+    }
+
+    @SuppressLint("WrongViewCast")
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_track, container, false);
+        View view = inflater.inflate(R.layout.fragment_track, container, false);
+        entriesLayout = view.findViewById(R.id.entries_layout);
+        entryEditText = view.findViewById(R.id.entry_edit);
+        FloatingActionButton fab = view.findViewById(R.id.floatingActionButton);
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                addEntry(entryEditText.getText().toString());
+            }
+        });
+        return view;
     }
 
-    // Method that should create a new users with a id, name, and email.
-    public void onClickWriteNewUser(String userId, String name, String email) {
-        User user = new User(name, email);
-
-        mDatabase.child("users").child(userId).setValue(user);
+    private void showEntryInputDialog() {
+        UserInputFragment dialogFragment = new UserInputFragment();
+        dialogFragment.setTargetFragment(this, 0);
+        dialogFragment.show(getParentFragmentManager(), "UserInputFragment");
     }
 }

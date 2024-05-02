@@ -187,6 +187,7 @@ public class StepsFragment extends Fragment implements SensorEventListener {
 
     public int getmPreTotalSteps() {
         return mPreTotalSteps;
+    }
     // Method should find one user id in the database
     // if the user is found return the users information
     // if the user is not found return not logged in.

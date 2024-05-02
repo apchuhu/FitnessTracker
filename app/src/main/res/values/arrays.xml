@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="taskTypes">
+        <item>General Tasks</item>
+        <item>Exercise</item>
+    </string-array>
+    
+    <string-array name="exerciseList">
+        <item> Bench Press </item>
+        <item> Squats </item>
+    </string-array>
+</resources>

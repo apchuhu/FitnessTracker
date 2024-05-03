@@ -170,96 +170,68 @@ public class PlanFragment extends Fragment {
         Toast.makeText(requireContext(), selectDate, Toast.LENGTH_SHORT).show();
     }
 
-
-//    private void showAddItem(LayoutInflater inflater) {
-//        AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
-//        LayoutInflater popup = requireActivity().getLayoutInflater();
-//        View popupView = inflater.inflate(R.layout.add_item, null);
-//        final EditText editText = popupView.findViewById(R.id.editEntry);
-//        if (Register.userIdMap == null) {
-//            Register.userIdMap = new HashMap<>();
-//        }
-//
-//        builder.setView(popupView).setTitle("Add Entry").
-//                    setPositiveButton("Add", new DialogInterface.OnClickListener() {
-//                    //Register register = new Register();
-//                    //HashMap<String, Object> entryMap = register.getUserIdMap();
-//                    @Override
-//                    public void onClick(DialogInterface dialog, int which) {
-//                        String entry = editText.getText().toString().trim();
-//                        if (!entry.isEmpty()) {
-//                            // Add the entry to the userIdMap directly
-//
-//                            Register.userIdMap.put("Entry", entry);
-//                            // Add the entry to the entry list and notify the adapter
-//                            entryList.add(entry);
-//                            entryAdapter.notifyDataSetChanged();
-//                            // Update the database with the new entry
-//                            mDatabaseRef.setValue(Register.userIdMap);
-//                            updateDatabase(Register.userIdMap);
-//                            Toast.makeText(requireContext(), "Entry Added", Toast.LENGTH_SHORT).show();
-//                            Log.d("EntryList", "Updated List: " + entryList.toString());
-//                            dialog.dismiss();
-//                        } else {
-//                            Toast.makeText(requireContext(), "Entry is empty try again.", Toast.LENGTH_SHORT).show();
-//                        }
-//                    }
-//                }).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-//                    @Override
-//                    public void onClick(DialogInterface dialog, int which) {
-//                        dialog.cancel();
-//                    }
-//                });
-//        AlertDialog dialog = builder.create();
-//        dialog.show();
-//    }
+    
 private void showAddItem(LayoutInflater inflater) {
     AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
     LayoutInflater popup = requireActivity().getLayoutInflater();
     View popupView = inflater.inflate(R.layout.add_item, null);
+    final Spinner taskType = popupView.findViewById(R.id.spinnerTask);
     final EditText editText = popupView.findViewById(R.id.editEntry);
 
+    ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(requireContext(), R.array.taskTypes,
+            android.R.layout.simple_spinner_dropdown_item);
+    adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+    taskType.setAdapter(adapter);
+
     builder.setView(popupView).setTitle("Add Entry").
-            setPositiveButton("Add", new DialogInterface.OnClickListener() {
+            setPositiveButton("Next", new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
-                    String entry = editText.getText().toString().trim();
-                    if (!entry.isEmpty()) {
-                        // Retrieve the existing entry list from the database
-                        mDatabaseRef.child("entry").addListenerForSingleValueEvent(new ValueEventListener() {
-                            @Override
-                            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                                ArrayList<String> entryList = new ArrayList<>();
-                                if (snapshot.exists()) {
-                                    // If entry data exists, retrieve it
-                                    for (DataSnapshot entrySnapshot : snapshot.getChildren()) {
-                                        String existingEntry = entrySnapshot.getValue(String.class);
-                                        if (existingEntry != null) {
-                                            entryList.add(existingEntry);
+                    String selectedTaskType = taskType.getSelectedItem().toString();
+
+                    if (selectedTaskType.equals("Exercise")){
+                        dialog.dismiss();
+                        showExerciseAddItem(inflater);
+                    }else{
+                        String entry = editText.getText().toString().trim();
+                        if (!entry.isEmpty()) {
+                            // Retrieve the existing entry list from the database
+                            mDatabaseRef.child("entry").addListenerForSingleValueEvent(new ValueEventListener() {
+                                @Override
+                                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                                    ArrayList<String> entryList = new ArrayList<>();
+                                    if (snapshot.exists()) {
+                                        // If entry data exists, retrieve it
+                                        for (DataSnapshot entrySnapshot : snapshot.getChildren()) {
+                                            String existingEntry = entrySnapshot.getValue(String.class);
+                                            if (existingEntry != null) {
+                                                entryList.add(existingEntry);
+                                            }
                                         }
                                     }
+                                    // Add the new entry to the list
+                                    entryList.add(entry);
+                                    // Update the entry list in the database
+                                    updateDatabase(entryList);
+                                    // Update the ListView adapter with the new data
+                                    entryAdapter.clear();
+                                    entryAdapter.addAll(entryList);
+                                    entryAdapter.notifyDataSetChanged();
+                                    // Notify the user
+                                    Toast.makeText(requireContext(), "Entry Added", Toast.LENGTH_SHORT).show();
                                 }
-                                // Add the new entry to the list
-                                entryList.add(entry);
-                                // Update the entry list in the database
-                                updateDatabase(entryList);
-                                // Update the ListView adapter with the new data
-                                entryAdapter.clear();
-                                entryAdapter.addAll(entryList);
-                                entryAdapter.notifyDataSetChanged();
-                                // Notify the user
-                                Toast.makeText(requireContext(), "Entry Added", Toast.LENGTH_SHORT).show();
-                            }
 
-                            @Override
-                            public void onCancelled(@NonNull DatabaseError error) {
-                                Log.e("Firebase", "Error retrieving entry data: " + error.getMessage());
-                            }
-                        });
-                        dialog.dismiss();
-                    } else {
-                        Toast.makeText(requireContext(), "Entry is empty try again.", Toast.LENGTH_SHORT).show();
+                                @Override
+                                public void onCancelled(@NonNull DatabaseError error) {
+                                    Log.e("Firebase", "Error retrieving entry data: " + error.getMessage());
+                                }
+                            });
+                            dialog.dismiss();
+                        } else {
+                            Toast.makeText(requireContext(), "Entry is empty try again.", Toast.LENGTH_SHORT).show();
+                        }
                     }
+
                 }
             }).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
                 @Override

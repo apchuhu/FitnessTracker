@@ -133,6 +133,26 @@ public class PlanFragment extends Fragment {
         entryAdapter = new ArrayAdapter<>(requireContext(), android.R.layout.simple_list_item_1, entryList);
         entryListView = view.findViewById(R.id.entryList);
         entryListView.setAdapter(entryAdapter);
+        mDatabaseRef.child("entry").addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                entryList.clear(); // Clear the existing list
+                // Iterate through the snapshot to retrieve entries
+                for (DataSnapshot entrySnapshot : snapshot.getChildren()) {
+                    String entry = entrySnapshot.getValue(String.class);
+                    if (entry != null) {
+                        entryList.add(entry);
+                    }
+                }
+                // Update the adapter with the new data
+                entryAdapter.notifyDataSetChanged();
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Log.e("Firebase", "Error retrieving entries: " + error.getMessage());
+            }
+        });
 
         return view;
     }
@@ -225,23 +245,13 @@ private void showAddItem(LayoutInflater inflater) {
                                 // Add the new entry to the list
                                 entryList.add(entry);
                                 // Update the entry list in the database
-                                mDatabaseRef.child("entry").setValue(entryList)
-                                        .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                            @Override
-                                            public void onSuccess(Void aVoid) {
-                                                Log.d("Firebase", "Entry added successfully");
-                                                // Notify the user
-                                                Toast.makeText(requireContext(), "Entry Added", Toast.LENGTH_SHORT).show();
-                                            }
-                                        })
-                                        .addOnFailureListener(new OnFailureListener() {
-                                            @Override
-                                            public void onFailure(@NonNull Exception e) {
-                                                Log.e("Firebase", "Error adding entry: " + e.getMessage());
-                                                // Notify the user
-                                                Toast.makeText(requireContext(), "Failed to add entry", Toast.LENGTH_SHORT).show();
-                                            }
-                                        });
+                                updateDatabase(entryList);
+                                // Update the ListView adapter with the new data
+                                entryAdapter.clear();
+                                entryAdapter.addAll(entryList);
+                                entryAdapter.notifyDataSetChanged();
+                                // Notify the user
+                                Toast.makeText(requireContext(), "Entry Added", Toast.LENGTH_SHORT).show();
                             }
 
                             @Override
@@ -264,8 +274,8 @@ private void showAddItem(LayoutInflater inflater) {
     dialog.show();
 }
 
-    private void updateDatabase(HashMap<String, Object> map) {
-        mDatabaseRef.setValue(map)
+    private void updateDatabase(ArrayList<String> entryList) {
+        mDatabaseRef.child("entry").setValue(entryList)
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {

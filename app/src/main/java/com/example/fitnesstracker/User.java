@@ -1,7 +1,5 @@
 package com.example.fitnesstracker;
 
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.IgnoreExtraProperties;
 
 import java.util.Random;
@@ -17,7 +15,7 @@ public class User {
     // Pass a custom Java object, if the class that defines it
     // has a default constructor that takes no arguments
     // and has public getters for the properties to be assigned.
-    public User() {
+    public User(String username, String email) {
         // Default constructor required for calls to DataSnapshot.getValue(User.class)
     }
 

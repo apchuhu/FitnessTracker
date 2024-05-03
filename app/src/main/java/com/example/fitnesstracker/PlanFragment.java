@@ -7,7 +7,6 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
-import android.preference.DialogPreference;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -24,7 +23,6 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Locale;
-import java.util.SimpleTimeZone;
 
 
 import com.google.android.gms.tasks.OnFailureListener;
@@ -48,13 +46,15 @@ public class PlanFragment extends Fragment {
     private static final String ARG_PARAM2 = "param2";
     private String mParam1;
     private String mParam2;
+    private String today_date;
     CalendarView calendarView;
     Calendar calendar;
     private FloatingActionButton floatingActionButton;
     private ListView entryListView;
     private ArrayList<String> entryList;
     private ArrayAdapter<String> entryAdapter;
-    private DatabaseReference mDatabaseRef;
+    private DatabaseReference mDatabaseRefEntries;
+    private DatabaseReference mDatabaseRefDate;
     private FirebaseUser mCurrentUser;
 
     public PlanFragment() {
@@ -97,7 +97,8 @@ public class PlanFragment extends Fragment {
         mCurrentUser = FirebaseAuth.getInstance().getCurrentUser();
         if (mCurrentUser != null) {
 
-            mDatabaseRef = FirebaseDatabase.getInstance().getReference().child("users").child(mCurrentUser.getUid());
+//            mDatabaseRefDate = FirebaseDatabase.getInstance().getReference().child("users").child(mCurrentUser.getUid());
+
         } else {
             Log.e("Firebase", "User is not logged in");
         }
@@ -105,7 +106,8 @@ public class PlanFragment extends Fragment {
         calendarView = view.findViewById(R.id.calendarView);
         calendar = Calendar.getInstance();
         //setDate(2024, 3, 17);
-        getDate();
+        today_date = getDate();
+        mDatabaseRefEntries = FirebaseDatabase.getInstance().getReference().child("users").child(mCurrentUser.getUid()).child(today_date);
 
 
         calendarView.setOnDateChangeListener(new CalendarView.OnDateChangeListener() {
@@ -129,7 +131,7 @@ public class PlanFragment extends Fragment {
         entryAdapter = new ArrayAdapter<>(requireContext(), android.R.layout.simple_list_item_1, entryList);
         entryListView = view.findViewById(R.id.entryList);
         entryListView.setAdapter(entryAdapter);
-        mDatabaseRef.child("entry").addListenerForSingleValueEvent(new ValueEventListener() {
+        mDatabaseRefEntries.child("entry").child("general_task").addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 entryList.clear(); // Clear the existing list
@@ -162,12 +164,14 @@ public class PlanFragment extends Fragment {
         calendarView.setDate(millSec);
     }
 
-    public void getDate() {
+    public String getDate() {
         long date = calendarView.getDate();
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("MM/dd/yy", Locale.getDefault());
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("MM-dd-yy", Locale.getDefault());
         calendar.setTimeInMillis(date);
         String selectDate = simpleDateFormat.format(calendar.getTime());
         Toast.makeText(requireContext(), selectDate, Toast.LENGTH_SHORT).show();
+
+        return selectDate;
     }
 
     
@@ -196,7 +200,7 @@ private void showAddItem(LayoutInflater inflater) {
                         String entry = editText.getText().toString().trim();
                         if (!entry.isEmpty()) {
                             // Retrieve the existing entry list from the database
-                            mDatabaseRef.child("entry").addListenerForSingleValueEvent(new ValueEventListener() {
+                            mDatabaseRefEntries.child("entry").child("general_task").addListenerForSingleValueEvent(new ValueEventListener() {
                                 @Override
                                 public void onDataChange(@NonNull DataSnapshot snapshot) {
                                     ArrayList<String> entryList = new ArrayList<>();
@@ -212,7 +216,8 @@ private void showAddItem(LayoutInflater inflater) {
                                     // Add the new entry to the list
                                     entryList.add(entry);
                                     // Update the entry list in the database
-                                    updateDatabase(entryList);
+                                    mDatabaseRefEntries.child(today_date);
+                                    mDatabaseRefEntries.child("entry").child("general_task").setValue(entryList);
                                     // Update the ListView adapter with the new data
                                     entryAdapter.clear();
                                     entryAdapter.addAll(entryList);
@@ -243,23 +248,23 @@ private void showAddItem(LayoutInflater inflater) {
     dialog.show();
 }
 
-    private void updateDatabase(ArrayList<String> entryList) {
-        mDatabaseRef.child("entry").setValue(entryList)
-                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void aVoid) {
-                        Log.d("Firebase", "Entry list updated successfully");
-
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Log.e("Firebase", "Error updating entry list: " + e.getMessage());
-                    }
-                });
-
-    }
+//    private void updateDatabase(ArrayList<String> entryList) {
+//        mDatabaseRefEntries.child("entry").setValue(entryList)
+//                .addOnSuccessListener(new OnSuccessListener<Void>() {
+//                    @Override
+//                    public void onSuccess(Void aVoid) {
+//                        Log.d("Firebase", "Entry list updated successfully");
+//
+//                    }
+//                })
+//                .addOnFailureListener(new OnFailureListener() {
+//                    @Override
+//                    public void onFailure(@NonNull Exception e) {
+//                        Log.e("Firebase", "Error updating entry list: " + e.getMessage());
+//                    }
+//                });
+//
+//    }
 
     private void showExerciseAddItem(LayoutInflater inflater){
         AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
@@ -282,6 +287,15 @@ private void showAddItem(LayoutInflater inflater) {
                         String weight = editWeight.getText().toString().trim();
                         String sets = editSets.getText().toString().trim();
                         String reps = editReps.getText().toString().trim();
+
+                        HashMap<String, String> exerciseMap = new HashMap<>();
+                        exerciseMap.put("Weight(lbs)", weight);
+                        exerciseMap.put("Sets", sets);
+                        exerciseMap.put("Reps", reps);
+
+                        mDatabaseRefEntries.child(today_date);
+                        mDatabaseRefEntries.child("entry").child("exercise_task").child(selectedExercise).setValue(exerciseMap);
+
 
                         if (!weight.isEmpty() && !sets.isEmpty() && !reps.isEmpty()){
                             String exerciseEntry = selectedExercise + ": Weight: " + weight + ", Sets: "

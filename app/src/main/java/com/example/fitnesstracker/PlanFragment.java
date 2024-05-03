@@ -16,6 +16,7 @@ import android.widget.ArrayAdapter;
 import android.widget.CalendarView;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.Spinner;
 import android.widget.Toast;
 
 import java.text.SimpleDateFormat;
@@ -43,13 +44,8 @@ import com.google.firebase.database.ValueEventListener;
  * create an instance of this fragment.
  */
 public class PlanFragment extends Fragment {
-
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
-
-    // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
     CalendarView calendarView;
@@ -174,6 +170,7 @@ public class PlanFragment extends Fragment {
         Toast.makeText(requireContext(), selectDate, Toast.LENGTH_SHORT).show();
     }
 
+
 //    private void showAddItem(LayoutInflater inflater) {
 //        AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
 //        LayoutInflater popup = requireActivity().getLayoutInflater();
@@ -280,6 +277,7 @@ private void showAddItem(LayoutInflater inflater) {
                     @Override
                     public void onSuccess(Void aVoid) {
                         Log.d("Firebase", "Entry list updated successfully");
+
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
@@ -289,5 +287,48 @@ private void showAddItem(LayoutInflater inflater) {
                     }
                 });
 
+    }
+
+    private void showExerciseAddItem(LayoutInflater inflater){
+        AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
+        View popupView = inflater.inflate(R.layout.add_exercise, null);
+        final Spinner exerciseTypes = popupView.findViewById(R.id.spinnerExerciseTask);
+        final EditText editWeight = popupView.findViewById(R.id.editWeight);
+        final EditText editSets = popupView.findViewById(R.id.editSets);
+        final EditText editReps = popupView.findViewById(R.id.editReps);
+
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(requireContext(), R.array.exerciseList,
+                android.R.layout.simple_spinner_dropdown_item);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        exerciseTypes.setAdapter(adapter);
+
+        builder.setView(popupView).setTitle("Select Exercise").setPositiveButton("Add",
+                new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        String selectedExercise = exerciseTypes.getSelectedItem().toString();
+                        String weight = editWeight.getText().toString().trim();
+                        String sets = editSets.getText().toString().trim();
+                        String reps = editReps.getText().toString().trim();
+
+                        if (!weight.isEmpty() && !sets.isEmpty() && !reps.isEmpty()){
+                            String exerciseEntry = selectedExercise + ": Weight: " + weight + ", Sets: "
+                                    + sets + ", Reps: " + reps;
+                            entryList.add(exerciseEntry);
+                            entryAdapter.notifyDataSetChanged();
+                            Toast.makeText(requireContext(), "Entry Added", Toast.LENGTH_SHORT).show();
+                        }
+                        else {
+                            Toast.makeText(requireContext(), "Entry is empty try again.", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                }).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+            }
+        });
+        AlertDialog dialog = builder.create();
+        dialog.show();
     }
 }

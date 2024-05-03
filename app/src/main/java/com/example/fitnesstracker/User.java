@@ -16,7 +16,8 @@ public class User {
     // has a default constructor that takes no arguments
     // and has public getters for the properties to be assigned.
     public User(String username, String email) {
-        // Default constructor required for calls to DataSnapshot.getValue(User.class)
+        setUsername(username);
+        setEmail(email);
     }
 
     public String getUserId() {

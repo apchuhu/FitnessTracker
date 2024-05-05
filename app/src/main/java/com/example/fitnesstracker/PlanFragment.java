@@ -170,7 +170,7 @@ public class PlanFragment extends Fragment {
         Toast.makeText(requireContext(), selectDate, Toast.LENGTH_SHORT).show();
     }
 
-    
+
 private void showAddItem(LayoutInflater inflater) {
     AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
     LayoutInflater popup = requireActivity().getLayoutInflater();

@@ -22,7 +22,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -30,6 +29,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -49,6 +49,7 @@ public class StepsFragment extends Fragment implements SensorEventListener {
 
     private int mTotalSteps = 0;
     private int mPreTotalSteps = 0;
+    String thisUser;
     private ProgressBar mProgressBar;
     private TextView mStepText;
     private SensorManager mSensManager;
@@ -99,7 +100,7 @@ public class StepsFragment extends Fragment implements SensorEventListener {
         mStepText = view.findViewById(R.id.stepsText);
         userText = view.findViewById(R.id.user_Details);
         mAuth = FirebaseAuth.getInstance();
-        mDatabase = FirebaseDatabase.getInstance().getReference();
+        mDatabase = FirebaseDatabase.getInstance().getReference().child("users");
         userText.setText(checkForDBUser());
         resetSteps();
         loadData();
@@ -125,7 +126,7 @@ public class StepsFragment extends Fragment implements SensorEventListener {
         mSensManager.unregisterListener(this);
     }
 
-    private void resetSteps(){
+    private void resetSteps() {
         if (mStepText != null) {
             mStepText.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -150,7 +151,7 @@ public class StepsFragment extends Fragment implements SensorEventListener {
         }
     }
 
-    private void saveData(){
+    private void saveData() {
         SharedPreferences sharedPref = requireActivity().getSharedPreferences("myPref", Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPref.edit();
         editor.putString("key1", String.valueOf(mPreTotalSteps));
@@ -159,7 +160,7 @@ public class StepsFragment extends Fragment implements SensorEventListener {
 
     }
 
-    private void loadData(){
+    private void loadData() {
         SharedPreferences sharedPref = requireActivity().getSharedPreferences("myPref", Context.MODE_PRIVATE);
         String savedNum = sharedPref.getString("key1", "0");
         mPreTotalSteps = Integer.parseInt(savedNum);
@@ -181,6 +182,7 @@ public class StepsFragment extends Fragment implements SensorEventListener {
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
 
     }
+
     public int getmTotalSteps() {
         return mTotalSteps;
     }
@@ -188,34 +190,41 @@ public class StepsFragment extends Fragment implements SensorEventListener {
     public int getmPreTotalSteps() {
         return mPreTotalSteps;
     }
+
     // Method should find one user id in the database
     // if the user is found return the users information
     // if the user is not found return not logged in.
     public String checkForDBUser() {
-
-//        ValueEventListener dataBaseListener = new ValueEventListener() {
-//            @Override
-//            public void onDataChange(@NonNull DataSnapshot snapshot) {
-//                // Get User object and use the values to update the UI
-//                User user = snapshot.getValue(User.class);
-//            }
-//
-//            @Override
-//            public void onCancelled(@NonNull DatabaseError error) {
-//                // Getting Post failed, log a message
-//                Log.w(TAG, "loadPost:onCancelled", error.toException());
-//            }
-//        };
-//
-//        ValueEventListener user = mDatabase.addValueEventListener(dataBaseListener);
-
         String user = mAuth.getCurrentUser().getEmail();
 
-        if ((user != null)) {
-            return "Progress for " + user;
+        if (mAuth.getCurrentUser() != null) {
+            mDatabase.child(mAuth.getCurrentUser().getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                    if (snapshot.exists()) {
+                        // User exists in the database
+                        // Assuming you have a field called "name" in your user data
+                        thisUser = snapshot.child("Username").getValue(String.class);
+                        userText.setText("Progress for " + thisUser);
+                    } else {
+                        // User does not exist in the database
+                        thisUser = "Guest";
+                        userText.setText("Progress for " + thisUser);
+                    }
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError error) {
+                    // Getting user data failed, log a message
+                    Log.w(TAG, "Failed to read value.", error.toException());
+                }
+            });
+        } else {
+            // User is not authenticated
+            thisUser = "Guest";
+            userText.setText("Progress for " + thisUser);
         }
-        else {
-            return "Progress for Guest";
-        }
+
+        return "Progress for " + thisUser;
     }
 }

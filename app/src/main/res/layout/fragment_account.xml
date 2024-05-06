@@ -10,7 +10,7 @@
         android:id="@+id/user_Details"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Hello people"
+        android:text=""
         android:textSize="30dp"
         android:textStyle="bold"
         android:layout_marginTop="25dp"
@@ -20,16 +20,17 @@
         android:id="@+id/logout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/logout"
         android:layout_below="@id/user_Details"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="16dp" />
+        android:layout_marginTop="446dp"
+        android:text="@string/logout"
+        android:layout_centerHorizontal="true"/>
 
     <FrameLayout
         android:id="@+id/frame_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@id/logout">
+        android:layout_below="@id/logout"
+        android:layout_marginTop="74dp">
 
     </FrameLayout>
 

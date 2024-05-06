@@ -17,4 +17,6 @@
     <string name="forgot_password">Forgot Password</string>
     <string name="create_account">Create Account</string>
     <string name="welcome">Welcome to Motion Flow!</string>
+    <string name="change_theme_color">Change Theme Color</string>
+    <string name="fitness_calendar">Fitness Calendar</string>
 </resources>

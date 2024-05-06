@@ -7,12 +7,12 @@
         android:title="Home"
         android:icon="@drawable/baseline_home_24"
         android:id="@+id/home"/>
-    <item
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:title="Track"
-        android:icon="@drawable/baseline_auto_graph_24"
-        android:id="@+id/track"/>
+<!--    <item-->
+<!--        android:layout_width="wrap_content"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:title="Track"-->
+<!--        android:icon="@drawable/baseline_auto_graph_24"-->
+<!--        android:id="@+id/track"/>-->
     <item
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

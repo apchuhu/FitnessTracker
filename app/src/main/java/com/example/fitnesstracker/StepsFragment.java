@@ -28,8 +28,11 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashMap;
+import java.util.Locale;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -174,8 +177,22 @@ public class StepsFragment extends Fragment implements SensorEventListener {
             int currentSteps = mTotalSteps - mPreTotalSteps;
             mStepText.setText(String.valueOf(currentSteps));
             mProgressBar.setProgress(currentSteps);
-            mStepsRef.setValue(currentSteps);
+
+            // Get the current date
+            String currentDate = getCurrentDate();
+
+            // Save the steps data under the current user and date
+            if (mAuth.getCurrentUser() != null) {
+                mDatabase.child(mAuth.getCurrentUser().getUid()).child("steps").child(currentDate).setValue(currentSteps);
+            }
         }
+    }
+
+    // Method to get the current date in the format MM-dd-yy
+    private String getCurrentDate() {
+        SimpleDateFormat dateFormat = new SimpleDateFormat("MM-dd-yy", Locale.getDefault());
+        Calendar calendar = Calendar.getInstance();
+        return dateFormat.format(calendar.getTime());
     }
 
     @Override

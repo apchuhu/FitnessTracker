@@ -61,6 +61,7 @@ public class StepsFragment extends Fragment implements SensorEventListener {
     private DatabaseReference mDatabase;
     private TextView userText;
     private DatabaseReference mStepsRef;
+    private String lastDate = "";
 
     public StepsFragment() {
         // Required empty public constructor
@@ -181,11 +182,35 @@ public class StepsFragment extends Fragment implements SensorEventListener {
             // Get the current date
             String currentDate = getCurrentDate();
 
+            // Check if the current date has changed from the last recorded date
+            if (!currentDate.equals(lastDate)) {
+                // Reset the step counter to 0
+                mPreTotalSteps = mTotalSteps;
+                // Update the last recorded date
+                lastDate = currentDate;
+                // Save the last recorded date in SharedPreferences
+                saveLastDate();
+            }
+
             // Save the steps data under the current user and date
             if (mAuth.getCurrentUser() != null) {
                 mDatabase.child(mAuth.getCurrentUser().getUid()).child("steps").child(currentDate).setValue(currentSteps);
             }
         }
+    }
+
+    // Method to save the last recorded date in SharedPreferences
+    private void saveLastDate() {
+        SharedPreferences sharedPref = requireActivity().getSharedPreferences("myPref", Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPref.edit();
+        editor.putString("lastDate", lastDate);
+        editor.apply();
+    }
+
+    // Method to load the last recorded date from SharedPreferences
+    private void loadLastDate() {
+        SharedPreferences sharedPref = requireActivity().getSharedPreferences("myPref", Context.MODE_PRIVATE);
+        lastDate = sharedPref.getString("lastDate", "");
     }
 
     // Method to get the current date in the format MM-dd-yy

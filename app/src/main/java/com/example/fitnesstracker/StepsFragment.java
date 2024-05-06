@@ -194,7 +194,7 @@ public class StepsFragment extends Fragment implements SensorEventListener {
 
             // Save the steps data under the current user and date
             if (mAuth.getCurrentUser() != null) {
-                mDatabase.child(mAuth.getCurrentUser().getUid()).child("steps").setValue(currentSteps);
+                mDatabase.child(mAuth.getCurrentUser().getUid()).child(currentDate).child("steps").setValue(currentSteps);
             }
         }
     }

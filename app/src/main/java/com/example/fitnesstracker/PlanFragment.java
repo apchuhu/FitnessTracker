@@ -113,7 +113,65 @@ public class PlanFragment extends Fragment {
         calendarView.setOnDateChangeListener(new CalendarView.OnDateChangeListener() {
             @Override
             public void onSelectedDayChange(@NonNull CalendarView view, int year, int month, int dayOfMonth) {
-                Toast.makeText(requireContext(), month + 1 + "/" + dayOfMonth + "/" + year, Toast.LENGTH_SHORT).show();
+                SimpleDateFormat dateFormat = new SimpleDateFormat("MM-dd-yy", Locale.getDefault());
+                Calendar selectedCalendar = Calendar.getInstance();
+                selectedCalendar.set(year, month, dayOfMonth);
+                String selectedDate = dateFormat.format(selectedCalendar.getTime());
+
+                // Update the current date
+                today_date = selectedDate;
+
+                // Update the database reference to the selected date
+                mDatabaseRefEntries = FirebaseDatabase.getInstance().getReference()
+                        .child("users")
+                        .child(mCurrentUser.getUid())
+                        .child(today_date); // Point directly to the date node, not the "entry" node
+
+                // Retrieve data from the database based on the selected date
+                mDatabaseRefEntries.addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        entryList.clear(); // Clear the existing list
+
+                        // Retrieve and add general_task entries
+                        DataSnapshot entrySnapshot = snapshot.child("entry"); // Get the "entry" node
+                        if (entrySnapshot.exists()) {
+                            DataSnapshot generalTaskSnapshot = entrySnapshot.child("general_task");
+                            for (DataSnapshot entry : generalTaskSnapshot.getChildren()) {
+                                String entryValue = entry.getValue(String.class);
+                                if (entryValue != null) {
+                                    entryList.add(entryValue);
+                                }
+                            }
+
+                            // Retrieve and add exercise_task entries
+                            DataSnapshot exerciseTaskSnapshot = entrySnapshot.child("exercise_task");
+                            for (DataSnapshot exerciseSnapshot : exerciseTaskSnapshot.getChildren()) {
+                                String exerciseName = exerciseSnapshot.getKey();
+                                StringBuilder exerciseEntry = new StringBuilder(exerciseName + ": ");
+
+                                // Iterate through exercise details
+                                for (DataSnapshot detailSnapshot : exerciseSnapshot.getChildren()) {
+                                    String detailKey = detailSnapshot.getKey();
+                                    String detailValue = detailSnapshot.getValue(String.class);
+                                    exerciseEntry.append(detailKey).append(": ").append(detailValue).append(", ");
+                                }
+                                exerciseEntry.delete(exerciseEntry.length() - 2, exerciseEntry.length());
+
+                                // Add the exercise entry to the list
+                                entryList.add(exerciseEntry.toString());
+                            }
+                        }
+
+                        // Update the adapter with the new data
+                        entryAdapter.notifyDataSetChanged();
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
+                        Log.e("Firebase", "Error retrieving entries: " + error.getMessage());
+                    }
+                });
             }
         });
 
@@ -266,24 +324,6 @@ private void showAddItem(LayoutInflater inflater) {
     AlertDialog dialog = builder.create();
     dialog.show();
 }
-
-//    private void updateDatabase(ArrayList<String> entryList) {
-//        mDatabaseRefEntries.child("entry").setValue(entryList)
-//                .addOnSuccessListener(new OnSuccessListener<Void>() {
-//                    @Override
-//                    public void onSuccess(Void aVoid) {
-//                        Log.d("Firebase", "Entry list updated successfully");
-//
-//                    }
-//                })
-//                .addOnFailureListener(new OnFailureListener() {
-//                    @Override
-//                    public void onFailure(@NonNull Exception e) {
-//                        Log.e("Firebase", "Error updating entry list: " + e.getMessage());
-//                    }
-//                });
-//
-//    }
 
     private void showExerciseAddItem(LayoutInflater inflater){
         AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());

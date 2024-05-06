@@ -28,8 +28,11 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashMap;
+import java.util.Locale;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -58,6 +61,7 @@ public class StepsFragment extends Fragment implements SensorEventListener {
     private DatabaseReference mDatabase;
     private TextView userText;
     private DatabaseReference mStepsRef;
+    private String lastDate = "";
 
     public StepsFragment() {
         // Required empty public constructor
@@ -161,9 +165,26 @@ public class StepsFragment extends Fragment implements SensorEventListener {
     }
 
     private void loadData() {
-        SharedPreferences sharedPref = requireActivity().getSharedPreferences("myPref", Context.MODE_PRIVATE);
-        String savedNum = sharedPref.getString("key1", "0");
-        mPreTotalSteps = Integer.parseInt(savedNum);
+        if (mAuth.getCurrentUser() != null) {
+            String currentDate = getCurrentDate();
+            mDatabase.child(mAuth.getCurrentUser().getUid()).child("steps").child(currentDate)
+                    .addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(@NonNull DataSnapshot snapshot) {
+                            if (snapshot.exists()) {
+                                String savedSteps = snapshot.getValue(String.class);
+                                mPreTotalSteps = Integer.parseInt(savedSteps);
+                                mStepText.setText(String.valueOf(mTotalSteps - mPreTotalSteps));
+                                mProgressBar.setProgress(mTotalSteps - mPreTotalSteps);
+                            }
+                        }
+
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError error) {
+                            Log.e(TAG, "Failed to read value.", error.toException());
+                        }
+                    });
+        }
     }
 
 
@@ -174,8 +195,46 @@ public class StepsFragment extends Fragment implements SensorEventListener {
             int currentSteps = mTotalSteps - mPreTotalSteps;
             mStepText.setText(String.valueOf(currentSteps));
             mProgressBar.setProgress(currentSteps);
-            mStepsRef.setValue(currentSteps);
+
+            // Get the current date
+            String currentDate = getCurrentDate();
+
+            // Check if the current date has changed from the last recorded date
+            if (!currentDate.equals(lastDate)) {
+                // Reset the step counter to 0
+                mPreTotalSteps = mTotalSteps;
+                // Update the last recorded date
+                lastDate = currentDate;
+                // Save the last recorded date in SharedPreferences
+                saveLastDate();
+            }
+
+            // Save the steps data under the current user and date
+            if (mAuth.getCurrentUser() != null) {
+                mDatabase.child(mAuth.getCurrentUser().getUid()).child("steps").setValue(currentSteps);
+            }
         }
+    }
+
+    // Method to save the last recorded date in SharedPreferences
+    private void saveLastDate() {
+        SharedPreferences sharedPref = requireActivity().getSharedPreferences("myPref", Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPref.edit();
+        editor.putString("lastDate", lastDate);
+        editor.apply();
+    }
+
+    // Method to load the last recorded date from SharedPreferences
+    private void loadLastDate() {
+        SharedPreferences sharedPref = requireActivity().getSharedPreferences("myPref", Context.MODE_PRIVATE);
+        lastDate = sharedPref.getString("lastDate", "");
+    }
+
+    // Method to get the current date in the format MM-dd-yy
+    private String getCurrentDate() {
+        SimpleDateFormat dateFormat = new SimpleDateFormat("MM-dd-yy", Locale.getDefault());
+        Calendar calendar = Calendar.getInstance();
+        return dateFormat.format(calendar.getTime());
     }
 
     @Override

@@ -165,26 +165,9 @@ public class StepsFragment extends Fragment implements SensorEventListener {
     }
 
     private void loadData() {
-        if (mAuth.getCurrentUser() != null) {
-            String currentDate = getCurrentDate();
-            mDatabase.child(mAuth.getCurrentUser().getUid()).child("steps").child(currentDate)
-                    .addListenerForSingleValueEvent(new ValueEventListener() {
-                        @Override
-                        public void onDataChange(@NonNull DataSnapshot snapshot) {
-                            if (snapshot.exists()) {
-                                String savedSteps = snapshot.getValue(String.class);
-                                mPreTotalSteps = Integer.parseInt(savedSteps);
-                                mStepText.setText(String.valueOf(mTotalSteps - mPreTotalSteps));
-                                mProgressBar.setProgress(mTotalSteps - mPreTotalSteps);
-                            }
-                        }
-
-                        @Override
-                        public void onCancelled(@NonNull DatabaseError error) {
-                            Log.e(TAG, "Failed to read value.", error.toException());
-                        }
-                    });
-        }
+        SharedPreferences sharedPref = requireActivity().getSharedPreferences("myPref", Context.MODE_PRIVATE);
+        String savedNum = sharedPref.getString("key1", "0");
+        mPreTotalSteps = Integer.parseInt(savedNum);
     }
 
 

@@ -16,6 +16,7 @@ import android.widget.CalendarView;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.text.SimpleDateFormat;
@@ -56,6 +57,8 @@ public class PlanFragment extends Fragment {
     private DatabaseReference mDatabaseRefEntries;
     private DatabaseReference mDatabaseRefDate;
     private FirebaseUser mCurrentUser;
+    private TextView stepsTextView;
+    private DatabaseReference mStepsRef;
 
     public PlanFragment() {
         // Required empty public constructor
@@ -94,10 +97,12 @@ public class PlanFragment extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_plan, container, false);
         //database getting user and entries
+        stepsTextView = view.findViewById(R.id.stepsTextView);
         mCurrentUser = FirebaseAuth.getInstance().getCurrentUser();
         if (mCurrentUser != null) {
 
 //            mDatabaseRefDate = FirebaseDatabase.getInstance().getReference().child("users").child(mCurrentUser.getUid());
+
 
         } else {
             Log.e("Firebase", "User is not logged in");
@@ -107,9 +112,10 @@ public class PlanFragment extends Fragment {
         calendar = Calendar.getInstance();
         //setDate(2024, 3, 17);
         today_date = getDate();
+
         mDatabaseRefEntries = FirebaseDatabase.getInstance().getReference().child("users").child(mCurrentUser.getUid()).child(today_date);
-
-
+        mStepsRef = FirebaseDatabase.getInstance().getReference().child("users").child(mCurrentUser.getUid()).child(today_date).child("steps");
+        //retrieveStepsData();
         calendarView.setOnDateChangeListener(new CalendarView.OnDateChangeListener() {
             @Override
             public void onSelectedDayChange(@NonNull CalendarView view, int year, int month, int dayOfMonth) {
@@ -117,6 +123,7 @@ public class PlanFragment extends Fragment {
                 Calendar selectedCalendar = Calendar.getInstance();
                 selectedCalendar.set(year, month, dayOfMonth);
                 String selectedDate = dateFormat.format(selectedCalendar.getTime());
+
 
                 // Update the current date
                 today_date = selectedDate;
@@ -126,6 +133,8 @@ public class PlanFragment extends Fragment {
                         .child("users")
                         .child(mCurrentUser.getUid())
                         .child(today_date); // Point directly to the date node, not the "entry" node
+                mStepsRef = FirebaseDatabase.getInstance().getReference().child("users").child(mCurrentUser.getUid()).child(today_date).child("steps");
+                retrieveStepsData();
 
                 // Retrieve data from the database based on the selected date
                 mDatabaseRefEntries.addListenerForSingleValueEvent(new ValueEventListener() {
@@ -228,6 +237,7 @@ public class PlanFragment extends Fragment {
                 Log.e("Firebase", "Error retrieving entries: " + error.getMessage());
             }
         });
+        retrieveStepsData();
 
         return view;
     }
@@ -375,5 +385,26 @@ private void showAddItem(LayoutInflater inflater) {
         });
         AlertDialog dialog = builder.create();
         dialog.show();
+    }
+    private void retrieveStepsData() {
+        if (mStepsRef != null) {
+            mStepsRef.addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                    if (snapshot.exists()) {
+                        int steps = snapshot.getValue(Integer.class);
+                        stepsTextView.setText("Steps: " + steps);
+                    } else {
+                        // No steps data available
+                        stepsTextView.setText("Steps: N/A");
+                    }
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError error) {
+                    Log.e("Firebase", "Error retrieving steps data: " + error.getMessage());
+                }
+            });
+        }
     }
 }

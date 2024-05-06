@@ -11,6 +11,8 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Adapter;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.CalendarView;
 import android.widget.EditText;
@@ -23,6 +25,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Locale;
+import java.util.Objects;
 
 
 import com.google.android.gms.tasks.OnFailureListener;
@@ -113,7 +116,65 @@ public class PlanFragment extends Fragment {
         calendarView.setOnDateChangeListener(new CalendarView.OnDateChangeListener() {
             @Override
             public void onSelectedDayChange(@NonNull CalendarView view, int year, int month, int dayOfMonth) {
-                Toast.makeText(requireContext(), month + 1 + "/" + dayOfMonth + "/" + year, Toast.LENGTH_SHORT).show();
+                SimpleDateFormat dateFormat = new SimpleDateFormat("MM-dd-yy", Locale.getDefault());
+                Calendar selectedCalendar = Calendar.getInstance();
+                selectedCalendar.set(year, month, dayOfMonth);
+                String selectedDate = dateFormat.format(selectedCalendar.getTime());
+
+                // Update the current date
+                today_date = selectedDate;
+
+                // Update the database reference to the selected date
+                mDatabaseRefEntries = FirebaseDatabase.getInstance().getReference()
+                        .child("users")
+                        .child(mCurrentUser.getUid())
+                        .child(today_date); // Point directly to the date node, not the "entry" node
+
+                // Retrieve data from the database based on the selected date
+                mDatabaseRefEntries.addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        entryList.clear(); // Clear the existing list
+
+                        // Retrieve and add general_task entries
+                        DataSnapshot entrySnapshot = snapshot.child("entry"); // Get the "entry" node
+                        if (entrySnapshot.exists()) {
+                            DataSnapshot generalTaskSnapshot = entrySnapshot.child("general_task");
+                            for (DataSnapshot entry : generalTaskSnapshot.getChildren()) {
+                                String entryValue = entry.getValue(String.class);
+                                if (entryValue != null) {
+                                    entryList.add(entryValue);
+                                }
+                            }
+
+                            // Retrieve and add exercise_task entries
+                            DataSnapshot exerciseTaskSnapshot = entrySnapshot.child("exercise_task");
+                            for (DataSnapshot exerciseSnapshot : exerciseTaskSnapshot.getChildren()) {
+                                String exerciseName = exerciseSnapshot.getKey();
+                                StringBuilder exerciseEntry = new StringBuilder(exerciseName + ": ");
+
+                                // Iterate through exercise details
+                                for (DataSnapshot detailSnapshot : exerciseSnapshot.getChildren()) {
+                                    String detailKey = detailSnapshot.getKey();
+                                    String detailValue = detailSnapshot.getValue(String.class);
+                                    exerciseEntry.append(detailKey).append(": ").append(detailValue).append(", ");
+                                }
+                                exerciseEntry.delete(exerciseEntry.length() - 2, exerciseEntry.length());
+
+                                // Add the exercise entry to the list
+                                entryList.add(exerciseEntry.toString());
+                            }
+                        }
+
+                        // Update the adapter with the new data
+                        entryAdapter.notifyDataSetChanged();
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
+                        Log.e("Firebase", "Error retrieving entries: " + error.getMessage());
+                    }
+                });
             }
         });
 
@@ -171,6 +232,15 @@ public class PlanFragment extends Fragment {
             }
         });
 
+        entryListView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener(){
+            @Override
+            public boolean onItemLongClick(AdapterView<?> parent, View view1, int position, long id) {
+                String heldEntry = entryList.get(position);
+                showEditOrDeletePopup(heldEntry, position);
+                return true;
+            }
+        });
+
         return view;
     }
 
@@ -224,7 +294,6 @@ private void showAddItem(LayoutInflater inflater) {
                                 public void onDataChange(@NonNull DataSnapshot snapshot) {
                                     ArrayList<String> entryList = new ArrayList<>();
                                     if (snapshot.exists()) {
-                                        // If entry data exists, retrieve it
                                         for (DataSnapshot entrySnapshot : snapshot.getChildren()) {
                                             String existingEntry = entrySnapshot.getValue(String.class);
                                             if (existingEntry != null) {
@@ -267,24 +336,6 @@ private void showAddItem(LayoutInflater inflater) {
     dialog.show();
 }
 
-//    private void updateDatabase(ArrayList<String> entryList) {
-//        mDatabaseRefEntries.child("entry").setValue(entryList)
-//                .addOnSuccessListener(new OnSuccessListener<Void>() {
-//                    @Override
-//                    public void onSuccess(Void aVoid) {
-//                        Log.d("Firebase", "Entry list updated successfully");
-//
-//                    }
-//                })
-//                .addOnFailureListener(new OnFailureListener() {
-//                    @Override
-//                    public void onFailure(@NonNull Exception e) {
-//                        Log.e("Firebase", "Error updating entry list: " + e.getMessage());
-//                    }
-//                });
-//
-//    }
-
     private void showExerciseAddItem(LayoutInflater inflater){
         AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
         View popupView = inflater.inflate(R.layout.add_exercise, null);
@@ -317,7 +368,7 @@ private void showAddItem(LayoutInflater inflater) {
 
 
                         if (!weight.isEmpty() && !sets.isEmpty() && !reps.isEmpty()){
-                            String exerciseEntry = selectedExercise + ": Weight: " + weight + ", Sets: "
+                            String exerciseEntry = selectedExercise + ": Weight(lbs): " + weight + ", Sets: "
                                     + sets + ", Reps: " + reps;
                             entryList.add(exerciseEntry);
                             entryAdapter.notifyDataSetChanged();
@@ -335,5 +386,169 @@ private void showAddItem(LayoutInflater inflater) {
         });
         AlertDialog dialog = builder.create();
         dialog.show();
+    }
+
+    private void showEditOrDeletePopup(String heldEntry, int position) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
+        builder.setTitle("Edit or Delete").setItems(new CharSequence[]{"Edit", "Delete"}, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which){
+                switch (which){
+                    case 0:
+                        if (heldEntry.contains("Weight(lbs)")){
+                            String exerciseName = heldEntry.split(":")[0].trim();
+                            showExerciseEditPopup(exerciseName, position);
+                        }
+                        else {
+                            showEditPopup(heldEntry, position);
+                        }
+                        break;
+                    case 1:
+                        showDeletePopup(position);
+                        break;
+                }
+            }
+
+        }).setNegativeButton("Cancel", null).create().show();
+    }
+
+    private void showEditPopup(String heldEntry, final int position) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
+        builder.setTitle("Edit Entry");
+
+        final EditText editText = new EditText(requireContext());
+        editText.setText(heldEntry);
+        builder.setView(editText);
+        builder.setPositiveButton("Save", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                String updateEntry = editText.getText().toString();
+                entryList.set(position, updateEntry);
+                entryAdapter.notifyDataSetChanged();
+                String entryID = String.valueOf(position);
+                if (entryID != null){
+                    mDatabaseRefEntries.child("entry").child("general_task").child(entryID).setValue(updateEntry)
+                            .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                @Override
+                                public void onSuccess(Void unused) {
+                                    Toast.makeText(requireContext(), "Entry Updated", Toast.LENGTH_SHORT).show();
+                                }
+                            }).addOnFailureListener(new OnFailureListener() {
+                                @Override
+                                public void onFailure(@NonNull Exception e) {
+                                    Toast.makeText(requireContext(), "Failed to Update", Toast.LENGTH_SHORT).show();
+                                }
+                            });
+                    }
+                dialog.dismiss();
+            }
+        });
+        builder.setNegativeButton("Cancel", null);
+
+        builder.create().show();
+    }
+
+    private void showExerciseEditPopup(String exerciseName, final int position){
+        AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
+        LayoutInflater inflater = requireActivity().getLayoutInflater();
+        View popupview = inflater.inflate(R.layout.add_exercise, null);
+
+        EditText newWeightText = popupview.findViewById(R.id.editWeight);
+        EditText newSetsText = popupview.findViewById(R.id.editSets);
+        EditText newRepText = popupview.findViewById(R.id.editReps);
+
+        newWeightText.setText("");
+        newSetsText.setText("");
+        newRepText.setText("");
+
+        builder.setView(popupview).setTitle("Edit Exercise").setPositiveButton("Update", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                String newWeights = newWeightText.getText().toString().trim();
+                String newSets = newSetsText.getText().toString().trim();
+                String newReps = newRepText.getText().toString().trim();
+
+                String updatedExercise = exerciseName + ": Weight(lbs): " + newWeights + ", Sets: " + newSets + ", Reps: " + newReps;
+                entryList.set(position, updatedExercise);
+                entryAdapter.notifyDataSetChanged();
+
+                HashMap<String, Object> updatedExercises = new HashMap<>();
+                updatedExercises.put("Weight(lbs)", newWeights);
+                updatedExercises.put("Sets", newSets);
+                updatedExercises.put("Reps", newReps);
+
+                mDatabaseRefEntries.child("entry").child("exercise_task").child(exerciseName).setValue(updatedExercises)
+                        .addOnSuccessListener(new OnSuccessListener<Void>() {
+                            @Override
+                            public void onSuccess(Void unused) {
+                                Toast.makeText(requireContext(), "Exercise Task Updated", Toast.LENGTH_SHORT).show();
+                            }
+                        })
+                        .addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                Toast.makeText(requireContext(), "Update Failed", Toast.LENGTH_SHORT).show();
+                            }
+                        });
+
+            }
+        }).setNegativeButton("Cancel", null);
+
+        AlertDialog dialog = builder.create();
+        dialog.show();
+    }
+
+    private void showDeletePopup(int position) {
+        String entryRemove = entryList.get(position);
+        entryList.remove(position);
+        entryAdapter.notifyDataSetChanged();
+
+        boolean exerciseEntry = entryRemove.contains("Weight");
+        if (exerciseEntry){
+            String exerciseName = entryRemove.split(":")[0].trim();
+
+            mDatabaseRefEntries.child("entry").child("exercise_task").child(exerciseName).removeValue()
+                    .addOnSuccessListener(new OnSuccessListener<Void>() {
+                        @Override
+                        public void onSuccess(Void unused) {
+                            Toast.makeText(requireContext(), "Entry Deleted", Toast.LENGTH_SHORT).show();
+                        }
+                    }).addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Toast.makeText(requireContext(), "Error Deleted", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+        }
+        else {
+            mDatabaseRefEntries.child("entry").child("general_task").orderByValue().equalTo(entryRemove)
+                    .addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(@NonNull DataSnapshot snapshot) {
+                            if(snapshot.exists()){
+                                for (DataSnapshot childSnapshot : snapshot.getChildren()) {
+                                    childSnapshot.getRef().removeValue()
+                                            .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                @Override
+                                                public void onSuccess(Void unused) {
+                                                    Toast.makeText(requireContext(), "Entry Deleted", Toast.LENGTH_SHORT).show();
+                                                }
+                                            })
+                                            .addOnFailureListener(new OnFailureListener() {
+                                                @Override
+                                                public void onFailure(@NonNull Exception e) {
+                                                    Toast.makeText(requireContext(), "Error Deleting", Toast.LENGTH_SHORT).show();
+                                                }
+                                            });
+                                }
+                            }
+                        }
+
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError error) {
+                            Toast.makeText(requireContext(), "Canceled", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+        }
     }
 }

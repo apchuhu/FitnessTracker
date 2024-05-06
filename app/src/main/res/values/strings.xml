@@ -15,4 +15,6 @@
     <string name="logout">Logout</string>
     <string name="username">Username</string>
     <string name="forgot_password">Forgot Password</string>
+    <string name="create_account">Create Account</string>
+    <string name="welcome">Welcome to Motion Flow!</string>
 </resources>

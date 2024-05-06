@@ -4,4 +4,9 @@
     <color name="white">#FFFFFFFF</color>
     <color name="darkRed">#b50c00</color>
     <color name="babyBlue">#00f2ff</color>
+    <color name="midBlue">#303c52</color>
+    <color name="pinkRed">#fa3232</color>
+    <color name="lightBlue">#8FB8CA</color>
+    <color name="hyperlinkBlue">#0000ff</color>
+    <color name="lightGray">#f0f0f0</color>
 </resources>

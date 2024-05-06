@@ -1,13 +1,24 @@
 package com.example.fitnesstracker;
 
+import static android.content.ContentValues.TAG;
+
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ProgressBar;
+
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -24,7 +35,12 @@ public class HomeFragment extends Fragment {
     // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
+
+    private int thisUserSteps;
     private ProgressBar bar;
+
+    private DatabaseReference dbStepsRef;
+    private FirebaseAuth userAuth;
 
     public HomeFragment() {
         // Required empty public constructor
@@ -62,12 +78,46 @@ public class HomeFragment extends Fragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_home, container, false);
         bar = view.findViewById(R.id.progressBar2);
+        userAuth = FirebaseAuth.getInstance();
+        dbStepsRef = FirebaseDatabase.getInstance().getReference().child("users").child(userAuth.getCurrentUser().getUid());
         // Inflate the layout for this fragment
         return view;
     }
 
-    public void updateProgress(){
-        StepsFragment steps = new StepsFragment();
-        bar.setProgress(steps.getmTotalSteps() - steps.getmPreTotalSteps());
+    @Override
+    public void onResume() {
+        super.onResume();
+//        StepsFragment steps = new StepsFragment();
+//        bar.setProgress(steps.getmTotalSteps() - steps.getmPreTotalSteps());
+
+        if(userAuth.getCurrentUser() != null){
+            dbStepsRef.child(userAuth.getCurrentUser().getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                    thisUserSteps = snapshot.child("steps").getValue(Integer.class);
+                    bar.setProgress(thisUserSteps);
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError error) {
+                    // Getting user data failed, log a message
+                    Log.w(TAG, "Failed to read value.", error.toException());
+                }
+            });
+        }else{
+            bar.setProgress(0);
+        }
+
     }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+    }
+
+    //    public void updateProgress(){
+//        StepsFragment steps = new StepsFragment();
+//        bar.setProgress(steps.getmTotalSteps() - steps.getmPreTotalSteps());
+//    }
+
 }

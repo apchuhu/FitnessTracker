@@ -94,7 +94,7 @@ public class HomeFragment extends Fragment {
             dbStepsRef.child(userAuth.getCurrentUser().getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot snapshot) {
-                    thisUserSteps = snapshot.child("steps").getValue(Integer.class);
+//                    thisUserSteps = snapshot.child("steps").getValue(Integer.class);
                     bar.setProgress(thisUserSteps);
                 }
 

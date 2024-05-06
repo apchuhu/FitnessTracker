@@ -39,9 +39,9 @@ public class MainActivity extends AppCompatActivity{
             if (itemId == R.id.home) {
                 replaceFragment(new HomeFragment());
             }
-            else if (itemId == R.id.track) {
-                replaceFragment(new TrackFragment());
-            }
+//            else if (itemId == R.id.track) {
+//                replaceFragment(new TrackFragment());
+//            }
             else if (itemId == R.id.plan) {
                 replaceFragment(new PlanFragment());
             }

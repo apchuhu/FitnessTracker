@@ -11,6 +11,8 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Adapter;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.CalendarView;
 import android.widget.EditText;
@@ -23,6 +25,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Locale;
+import java.util.Objects;
 
 
 import com.google.android.gms.tasks.OnFailureListener;
@@ -171,6 +174,15 @@ public class PlanFragment extends Fragment {
             }
         });
 
+        entryListView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener(){
+            @Override
+            public boolean onItemLongClick(AdapterView<?> parent, View view1, int position, long id) {
+                String heldEntry = entryList.get(position);
+                showEditOrDeletePopup(heldEntry, position);
+                return true;
+            }
+        });
+
         return view;
     }
 
@@ -224,7 +236,6 @@ private void showAddItem(LayoutInflater inflater) {
                                 public void onDataChange(@NonNull DataSnapshot snapshot) {
                                     ArrayList<String> entryList = new ArrayList<>();
                                     if (snapshot.exists()) {
-                                        // If entry data exists, retrieve it
                                         for (DataSnapshot entrySnapshot : snapshot.getChildren()) {
                                             String existingEntry = entrySnapshot.getValue(String.class);
                                             if (existingEntry != null) {
@@ -317,7 +328,7 @@ private void showAddItem(LayoutInflater inflater) {
 
 
                         if (!weight.isEmpty() && !sets.isEmpty() && !reps.isEmpty()){
-                            String exerciseEntry = selectedExercise + ": Weight: " + weight + ", Sets: "
+                            String exerciseEntry = selectedExercise + ": Weight(lbs): " + weight + ", Sets: "
                                     + sets + ", Reps: " + reps;
                             entryList.add(exerciseEntry);
                             entryAdapter.notifyDataSetChanged();
@@ -335,5 +346,169 @@ private void showAddItem(LayoutInflater inflater) {
         });
         AlertDialog dialog = builder.create();
         dialog.show();
+    }
+
+    private void showEditOrDeletePopup(String heldEntry, int position) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
+        builder.setTitle("Edit or Delete").setItems(new CharSequence[]{"Edit", "Delete"}, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which){
+                switch (which){
+                    case 0:
+                        if (heldEntry.contains("Weight(lbs)")){
+                            String exerciseName = heldEntry.split(":")[0].trim();
+                            showExerciseEditPopup(exerciseName, position);
+                        }
+                        else {
+                            showEditPopup(heldEntry, position);
+                        }
+                        break;
+                    case 1:
+                        showDeletePopup(position);
+                        break;
+                }
+            }
+
+        }).setNegativeButton("Cancel", null).create().show();
+    }
+
+    private void showEditPopup(String heldEntry, final int position) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
+        builder.setTitle("Edit Entry");
+
+        final EditText editText = new EditText(requireContext());
+        editText.setText(heldEntry);
+        builder.setView(editText);
+        builder.setPositiveButton("Save", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                String updateEntry = editText.getText().toString();
+                entryList.set(position, updateEntry);
+                entryAdapter.notifyDataSetChanged();
+                String entryID = String.valueOf(position);
+                if (entryID != null){
+                    mDatabaseRefEntries.child("entry").child("general_task").child(entryID).setValue(updateEntry)
+                            .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                @Override
+                                public void onSuccess(Void unused) {
+                                    Toast.makeText(requireContext(), "Entry Updated", Toast.LENGTH_SHORT).show();
+                                }
+                            }).addOnFailureListener(new OnFailureListener() {
+                                @Override
+                                public void onFailure(@NonNull Exception e) {
+                                    Toast.makeText(requireContext(), "Failed to Update", Toast.LENGTH_SHORT).show();
+                                }
+                            });
+                    }
+                dialog.dismiss();
+            }
+        });
+        builder.setNegativeButton("Cancel", null);
+
+        builder.create().show();
+    }
+
+    private void showExerciseEditPopup(String exerciseName, final int position){
+        AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
+        LayoutInflater inflater = requireActivity().getLayoutInflater();
+        View popupview = inflater.inflate(R.layout.add_exercise, null);
+
+        EditText newWeightText = popupview.findViewById(R.id.editWeight);
+        EditText newSetsText = popupview.findViewById(R.id.editSets);
+        EditText newRepText = popupview.findViewById(R.id.editReps);
+
+        newWeightText.setText("");
+        newSetsText.setText("");
+        newRepText.setText("");
+
+        builder.setView(popupview).setTitle("Edit Exercise").setPositiveButton("Update", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                String newWeights = newWeightText.getText().toString().trim();
+                String newSets = newSetsText.getText().toString().trim();
+                String newReps = newRepText.getText().toString().trim();
+
+                String updatedExercise = exerciseName + ": Weight(lbs): " + newWeights + ", Sets: " + newSets + ", Reps: " + newReps;
+                entryList.set(position, updatedExercise);
+                entryAdapter.notifyDataSetChanged();
+
+                HashMap<String, Object> updatedExercises = new HashMap<>();
+                updatedExercises.put("Weight(lbs)", newWeights);
+                updatedExercises.put("Sets", newSets);
+                updatedExercises.put("Reps", newReps);
+
+                mDatabaseRefEntries.child("entry").child("exercise_task").child(exerciseName).setValue(updatedExercises)
+                        .addOnSuccessListener(new OnSuccessListener<Void>() {
+                            @Override
+                            public void onSuccess(Void unused) {
+                                Toast.makeText(requireContext(), "Exercise Task Updated", Toast.LENGTH_SHORT).show();
+                            }
+                        })
+                        .addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                Toast.makeText(requireContext(), "Update Failed", Toast.LENGTH_SHORT).show();
+                            }
+                        });
+
+            }
+        }).setNegativeButton("Cancel", null);
+
+        AlertDialog dialog = builder.create();
+        dialog.show();
+    }
+
+    private void showDeletePopup(int position) {
+        String entryRemove = entryList.get(position);
+        entryList.remove(position);
+        entryAdapter.notifyDataSetChanged();
+
+        boolean exerciseEntry = entryRemove.contains("Weight");
+        if (exerciseEntry){
+            String exerciseName = entryRemove.split(":")[0].trim();
+
+            mDatabaseRefEntries.child("entry").child("exercise_task").child(exerciseName).removeValue()
+                    .addOnSuccessListener(new OnSuccessListener<Void>() {
+                        @Override
+                        public void onSuccess(Void unused) {
+                            Toast.makeText(requireContext(), "Entry Deleted", Toast.LENGTH_SHORT).show();
+                        }
+                    }).addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Toast.makeText(requireContext(), "Error Deleted", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+        }
+        else {
+            mDatabaseRefEntries.child("entry").child("general_task").orderByValue().equalTo(entryRemove)
+                    .addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(@NonNull DataSnapshot snapshot) {
+                            if(snapshot.exists()){
+                                for (DataSnapshot childSnapshot : snapshot.getChildren()) {
+                                    childSnapshot.getRef().removeValue()
+                                            .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                @Override
+                                                public void onSuccess(Void unused) {
+                                                    Toast.makeText(requireContext(), "Entry Deleted", Toast.LENGTH_SHORT).show();
+                                                }
+                                            })
+                                            .addOnFailureListener(new OnFailureListener() {
+                                                @Override
+                                                public void onFailure(@NonNull Exception e) {
+                                                    Toast.makeText(requireContext(), "Error Deleting", Toast.LENGTH_SHORT).show();
+                                                }
+                                            });
+                                }
+                            }
+                        }
+
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError error) {
+                            Toast.makeText(requireContext(), "Canceled", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+        }
     }
 }

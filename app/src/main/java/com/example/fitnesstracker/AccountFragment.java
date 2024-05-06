@@ -1,7 +1,10 @@
 package com.example.fitnesstracker;
 
+import static android.content.ContentValues.TAG;
+
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,12 +18,21 @@ import androidx.fragment.app.Fragment;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 public class AccountFragment extends Fragment {
 
+    String thisUser;
+
     FirebaseAuth auth;
+    DatabaseReference mDatabase;
+
     Button button;
-    TextView textView;
+    TextView userText;
 
     public AccountFragment() {
         // Required empty public constructor
@@ -37,7 +49,8 @@ public class AccountFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_account, container, false);
         button = view.findViewById(R.id.logout);
-        textView = view.findViewById(R.id.user_Details);
+        userText = view.findViewById(R.id.user_Details);
+        mDatabase = FirebaseDatabase.getInstance().getReference().child("users");
         return view;
     }
 
@@ -55,6 +68,39 @@ public class AccountFragment extends Fragment {
         });
     }
 
+    public String checkForDBUser() {
+
+        if (auth.getCurrentUser() != null) {
+            mDatabase.child(auth.getCurrentUser().getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                    if (snapshot.exists()) {
+                        // User exists in the database
+                        // Assuming you have a field called "name" in your user data
+                        thisUser = snapshot.child("Username").getValue(String.class);
+                        userText.setText("Hello " + thisUser);
+                    } else {
+                        // User does not exist in the database
+                        thisUser = "Guest";
+                        userText.setText("Hello " + thisUser);
+                    }
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError error) {
+                    // Getting user data failed, log a message
+                    Log.w(TAG, "Failed to read value.", error.toException());
+                }
+            });
+        } else {
+            // User is not authenticated
+            thisUser = "Guest";
+            userText.setText("Progress for " + thisUser);
+        }
+
+        return "Progress for " + thisUser;
+    }
+
     @Override
     public void onStart() {
         super.onStart();
@@ -64,7 +110,7 @@ public class AccountFragment extends Fragment {
             startActivity(intent);
             getActivity().finish();
         } else {
-            textView.setText(user.getEmail());
+            checkForDBUser();
         }
     }
 }

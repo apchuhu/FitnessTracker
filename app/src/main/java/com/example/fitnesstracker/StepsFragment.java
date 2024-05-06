@@ -195,7 +195,6 @@ public class StepsFragment extends Fragment implements SensorEventListener {
     // if the user is found return the users information
     // if the user is not found return not logged in.
     public String checkForDBUser() {
-        String user = mAuth.getCurrentUser().getEmail();
 
         if (mAuth.getCurrentUser() != null) {
             mDatabase.child(mAuth.getCurrentUser().getUid()).addListenerForSingleValueEvent(new ValueEventListener() {

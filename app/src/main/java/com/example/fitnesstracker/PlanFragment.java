@@ -131,16 +131,35 @@ public class PlanFragment extends Fragment {
         entryAdapter = new ArrayAdapter<>(requireContext(), android.R.layout.simple_list_item_1, entryList);
         entryListView = view.findViewById(R.id.entryList);
         entryListView.setAdapter(entryAdapter);
-        mDatabaseRefEntries.child("entry").child("general_task").addListenerForSingleValueEvent(new ValueEventListener() {
+        //mDatabaseRefEntries.child("entry").child("general_task").addListenerForSingleValueEvent(new ValueEventListener() {
+        mDatabaseRefEntries.child("entry").addListenerForSingleValueEvent(new ValueEventListener() {
+
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 entryList.clear(); // Clear the existing list
                 // Iterate through the snapshot to retrieve entries
-                for (DataSnapshot entrySnapshot : snapshot.getChildren()) {
+                DataSnapshot generalTaskSnapshot = snapshot.child("general_task");
+                for (DataSnapshot entrySnapshot : generalTaskSnapshot.getChildren()) {
                     String entry = entrySnapshot.getValue(String.class);
                     if (entry != null) {
                         entryList.add(entry);
                     }
+                }
+                DataSnapshot exerciseTaskSnapshot = snapshot.child("exercise_task");
+                for (DataSnapshot exerciseSnapshot : exerciseTaskSnapshot.getChildren()) {
+                    String exerciseName = exerciseSnapshot.getKey();
+                    StringBuilder exerciseEntry = new StringBuilder(exerciseName + ": ");
+
+                    // Iterate through exercise details (weight, sets, reps)
+                    for (DataSnapshot detailSnapshot : exerciseSnapshot.getChildren()) {
+                        String detailKey = detailSnapshot.getKey();
+                        String detailValue = detailSnapshot.getValue(String.class);
+                        exerciseEntry.append(detailKey).append(": ").append(detailValue).append(", ");
+                    }
+                    exerciseEntry.delete(exerciseEntry.length() - 2, exerciseEntry.length());
+
+                    // Add the exercise entry to the list
+                    entryList.add(exerciseEntry.toString());
                 }
                 // Update the adapter with the new data
                 entryAdapter.notifyDataSetChanged();
@@ -174,7 +193,7 @@ public class PlanFragment extends Fragment {
         return selectDate;
     }
 
-    
+
 private void showAddItem(LayoutInflater inflater) {
     AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
     LayoutInflater popup = requireActivity().getLayoutInflater();

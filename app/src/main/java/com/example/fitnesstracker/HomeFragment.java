@@ -66,8 +66,21 @@ public class HomeFragment extends Fragment {
         return view;
     }
 
-    public void updateProgress(){
+    @Override
+    public void onResume() {
+        super.onResume();
         StepsFragment steps = new StepsFragment();
         bar.setProgress(steps.getmTotalSteps() - steps.getmPreTotalSteps());
     }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+    }
+
+    //    public void updateProgress(){
+//        StepsFragment steps = new StepsFragment();
+//        bar.setProgress(steps.getmTotalSteps() - steps.getmPreTotalSteps());
+//    }
+
 }

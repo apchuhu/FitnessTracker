@@ -164,27 +164,37 @@ public class StepsFragment extends Fragment implements SensorEventListener {
 
     }
 
-    private void loadData() {
-        if (mAuth.getCurrentUser() != null) {
-            String currentDate = getCurrentDate();
-            mDatabase.child(mAuth.getCurrentUser().getUid()).child("steps").child(currentDate)
-                    .addListenerForSingleValueEvent(new ValueEventListener() {
-                        @Override
-                        public void onDataChange(@NonNull DataSnapshot snapshot) {
-                            if (snapshot.exists()) {
-                                String savedSteps = snapshot.getValue(String.class);
-                                mPreTotalSteps = Integer.parseInt(savedSteps);
-                                mStepText.setText(String.valueOf(mTotalSteps - mPreTotalSteps));
-                                mProgressBar.setProgress(mTotalSteps - mPreTotalSteps);
-                            }
-                        }
+//    private void loadData() {
+//        if (mAuth.getCurrentUser() != null) {
+//            String currentDate = getCurrentDate();
+//            if (currentDate != null){
+//                mDatabase.child(mAuth.getCurrentUser().getUid()).child(currentDate).child("steps").setValue(0);
+//            }else{
+//            mDatabase.child(mAuth.getCurrentUser().getUid()).child(currentDate).child("steps")
+//                    .addListenerForSingleValueEvent(new ValueEventListener() {
+//                        @Override
+//                        public void onDataChange(@NonNull DataSnapshot snapshot) {
+//                            if (snapshot.exists()) {
+//                                Long savedSteps = snapshot.getValue(Long.class);
+//                                mPreTotalSteps = savedSteps.intValue();
+//                                mStepText.setText(String.valueOf(mTotalSteps - mPreTotalSteps));
+//                                mProgressBar.setProgress(mTotalSteps - mPreTotalSteps);
+//                            }
+//                        }
+//
+//                        @Override
+//                        public void onCancelled(@NonNull DatabaseError error) {
+//                            Log.e(TAG, "Failed to read value.", error.toException());
+//                        }
+//                    });
+//            }
+//        }
+//    }
 
-                        @Override
-                        public void onCancelled(@NonNull DatabaseError error) {
-                            Log.e(TAG, "Failed to read value.", error.toException());
-                        }
-                    });
-        }
+    private void loadData() {
+        SharedPreferences sharedPref = requireActivity().getSharedPreferences("myPref", Context.MODE_PRIVATE);
+        String savedNum = sharedPref.getString("key1", "0");
+        mPreTotalSteps = Integer.parseInt(savedNum);
     }
 
 
@@ -211,7 +221,7 @@ public class StepsFragment extends Fragment implements SensorEventListener {
 
             // Save the steps data under the current user and date
             if (mAuth.getCurrentUser() != null) {
-                mDatabase.child(mAuth.getCurrentUser().getUid()).child("steps").setValue(currentSteps);
+                mDatabase.child(mAuth.getCurrentUser().getUid()).child(currentDate).child("steps").setValue(currentSteps);
             }
         }
     }

@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -100,11 +101,11 @@ public class AccountFragment extends Fragment {
                         // User exists in the database
                         // Assuming you have a field called "name" in your user data
                         thisUser = snapshot.child("Username").getValue(String.class);
-                        userText.setText("Hello " + thisUser);
+                        textView.setText("Hello " + thisUser);
                     } else {
                         // User does not exist in the database
                         thisUser = "Guest";
-                        userText.setText("Hello " + thisUser);
+                        textView.setText("Hello " + thisUser);
                     }
                 }
 
@@ -117,7 +118,7 @@ public class AccountFragment extends Fragment {
         } else {
             // User is not authenticated
             thisUser = "Guest";
-            userText.setText("Progress for " + thisUser);
+            textView.setText("Progress for " + thisUser);
         }
 
         return "Progress for " + thisUser;

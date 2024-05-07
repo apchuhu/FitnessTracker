@@ -65,6 +65,7 @@ public class AccountFragment extends Fragment {
         button = view.findViewById(R.id.logout);
         textView = view.findViewById(R.id.user_Details);
         button2 = view.findViewById(R.id.theme);
+        mDatabase = FirebaseDatabase.getInstance().getReference().child("users");
       
         return view;
     }

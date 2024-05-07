@@ -1,8 +1,9 @@
 package com.example.fitnesstracker;
 
+import android.content.Context;
 import static android.content.ContentValues.TAG;
-
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -37,14 +38,15 @@ public class AccountFragment extends Fragment {
     TextView textView;
     Button button2;
 
-    // Key for storing and retrieving the selected theme from SharedPreferences
+    // key for storing and retrieving the theme from shared preference object
     private static final String PREF_SELECTED_THEME = "selected_theme";
 
     // Theme IDs
     private static final int THEME_LOGIN = R.style.Theme_Login;
     private static final int THEME_FITNESS_TRACKER = R.style.Base_Theme_FitnessTracker;
 
-    private boolean isThemeLogin = true; // Flag to track the current theme
+    //boolean to make isThemeLogin true that way it starts at Theme.Login first
+    private boolean isThemeLogin = true;
 
     public AccountFragment() {
         // Required empty public constructor
@@ -54,7 +56,7 @@ public class AccountFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         auth = FirebaseAuth.getInstance();
-        // Apply the selected theme when the fragment is created or resumed
+        // call applySelectedTheme to set theme to the other theme
         applySelectedTheme();
     }
 
@@ -77,7 +79,6 @@ public class AccountFragment extends Fragment {
         button2.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // Call method to change the theme
                 toggleTheme();
             }
         });
@@ -138,41 +139,43 @@ public class AccountFragment extends Fragment {
         }
     }
 
-    // Method to toggle between themes
+    // method to toggle between Login theme and Fitness Tracker dark theme
     private void toggleTheme() {
         int newTheme;
         if (isThemeLogin) {
-            newTheme = THEME_FITNESS_TRACKER; // Switch to Fitness Tracker theme
+            newTheme = THEME_FITNESS_TRACKER;
         } else {
-            newTheme = THEME_LOGIN; // Switch back to Login theme
+            newTheme = THEME_LOGIN;
         }
 
-        // Save the selected theme to SharedPreferences
-        PreferenceManager.getDefaultSharedPreferences(requireContext())
-                .edit()
+        // This stores the theme into a shared preference for it to change to the new theme easier
+        SharedPreferences preferences = requireContext().getSharedPreferences(
+                requireContext().getPackageName() + "_preferences", Context.MODE_PRIVATE);
+        preferences.edit()
                 .putInt(PREF_SELECTED_THEME, newTheme)
                 .apply();
-
-        // Apply the selected theme
         applySelectedTheme();
 
-        // Recreate the current activity to apply the new theme (optional)
+        // reloads the "Activity" (Page) to apply the new theme
         requireActivity().recreate();
 
-        // Update the flag to track the current theme
+        // updates boolean in the instance variable to track which theme is on
         isThemeLogin = !isThemeLogin;
     }
 
-    // Method to apply the selected theme
-    private void applySelectedTheme() {
-        // Get the selected theme from SharedPreferences, defaulting to the light theme
-        int selectedTheme = PreferenceManager.getDefaultSharedPreferences(requireContext())
-                .getInt(PREF_SELECTED_THEME, THEME_LOGIN); // Default to Theme.Login
 
-        // Set the theme for the fragment
+    //method to apply the theme to the page
+    private void applySelectedTheme() {
+        // get the selected theme from shared preference object, it automatically defaults to the light theme
+        SharedPreferences preferences = requireContext().getSharedPreferences(
+                requireContext().getPackageName() + "_preferences", Context.MODE_PRIVATE);
+        int selectedTheme = preferences.getInt(PREF_SELECTED_THEME, THEME_LOGIN);
+
+        // sets the theme
         requireContext().getTheme().applyStyle(selectedTheme, true);
 
-        // Update the flag to track the current theme
+        // update the boolean to track the current theme
         isThemeLogin = selectedTheme == THEME_LOGIN;
     }
+
 }

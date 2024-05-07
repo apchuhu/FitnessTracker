@@ -164,6 +164,10 @@ public class StepsFragment extends Fragment implements SensorEventListener {
 
     }
 
+
+// The code below has caused us too much trouble and has become deprecated.
+
+
 //    private void loadData() {
 //        if (mAuth.getCurrentUser() != null) {
 //            String currentDate = getCurrentDate();
@@ -191,6 +195,7 @@ public class StepsFragment extends Fragment implements SensorEventListener {
 //        }
 //    }
 
+
     private void loadData() {
         SharedPreferences sharedPref = requireActivity().getSharedPreferences("myPref", Context.MODE_PRIVATE);
         String savedNum = sharedPref.getString("key1", "0");
@@ -198,6 +203,8 @@ public class StepsFragment extends Fragment implements SensorEventListener {
     }
 
 
+    // The code here is what truly helps the steps get persisted outside
+    // of the database, but it is not as functional as we would want it to be
     @Override
     public void onSensorChanged(SensorEvent event) {
         if (event.sensor.getType() == Sensor.TYPE_STEP_COUNTER) {
@@ -219,7 +226,7 @@ public class StepsFragment extends Fragment implements SensorEventListener {
                 saveLastDate();
             }
 
-            // Save the steps data under the current user and date
+            // Save the steps data under the current user and date in the database
             if (mAuth.getCurrentUser() != null) {
                 mDatabase.child(mAuth.getCurrentUser().getUid()).child(currentDate).child("steps").setValue(currentSteps);
             }
@@ -264,7 +271,6 @@ public class StepsFragment extends Fragment implements SensorEventListener {
     // if the user is found return the users information
     // if the user is not found return not logged in.
     public String checkForDBUser() {
-        String user = mAuth.getCurrentUser().getEmail();
 
         if (mAuth.getCurrentUser() != null) {
             mDatabase.child(mAuth.getCurrentUser().getUid()).addListenerForSingleValueEvent(new ValueEventListener() {

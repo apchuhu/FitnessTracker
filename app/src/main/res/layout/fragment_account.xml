@@ -1,46 +1,41 @@
-<?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:orientation="vertical"
-    android:gravity="center"
     android:layout_height="match_parent"
     tools:context=".AccountFragment">
 
+    <TextView
+        android:id="@+id/user_Details"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text=""
+        android:layout_centerInParent="true" />
 
-        <TextView
-            android:id="@+id/user_Details"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Hello people" />
-
-        <Button
-            android:text="@string/logout"
-            android:id="@+id/logout"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-             />
+    <Button
+        android:id="@+id/logout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/user_Details"
+        android:layout_marginTop="16dp"
+        android:text="@string/logout"
+        android:layout_centerHorizontal="true" />
 
     <Button
         android:id="@+id/theme"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/change_theme_color"/>
-
+        android:layout_below="@id/logout"
+        android:text="@string/change_theme_color"
+        android:layout_centerHorizontal="true" />
 
     <FrameLayout
         android:id="@+id/frame_layout"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        app:layout_constraintBottom_toTopOf="@+id/bottomNavigationView"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/theme"
+        android:layout_marginTop="16dp">
 
     </FrameLayout>
 
-
-</LinearLayout>
+</RelativeLayout>

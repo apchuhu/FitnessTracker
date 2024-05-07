@@ -109,6 +109,24 @@ public class HomeFragment extends Fragment {
             bar.setProgress(0);
         }
 
+//        if(userAuth.getCurrentUser() != null){
+//            dbStepsRef.child(userAuth.getCurrentUser().getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
+//                @Override
+//                public void onDataChange(@NonNull DataSnapshot snapshot) {
+//                    thisUserSteps = snapshot.child("steps").getValue(Integer.class);
+//                    bar.setProgress(thisUserSteps);
+//                }
+//
+//                @Override
+//                public void onCancelled(@NonNull DatabaseError error) {
+//                    // Getting user data failed, log a message
+//                    Log.w(TAG, "Failed to read value.", error.toException());
+//                }
+//            });
+//        }else{
+//            bar.setProgress(0);
+//        }
+//
     }
 
     @Override

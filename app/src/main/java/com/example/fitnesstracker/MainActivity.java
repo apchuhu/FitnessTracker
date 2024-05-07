@@ -39,6 +39,7 @@ public class MainActivity extends AppCompatActivity{
             if (itemId == R.id.home) {
                 replaceFragment(new HomeFragment());
             }
+            //we got rid of track fragment because we merged it with plan fragment
 //            else if (itemId == R.id.track) {
 //                replaceFragment(new TrackFragment());
 //            }
@@ -62,8 +63,7 @@ public class MainActivity extends AppCompatActivity{
         fragmentTransaction.commit();
     }
 
-
-
+    //method did not work
 //    public void displayInput() {
 //        String userInput = editTextInput.getText().toString();
 //        textViewOutput.setText("User input: " + userInput);

@@ -12,9 +12,6 @@ public class User {
     public String email;
 
 
-    // Pass a custom Java object, if the class that defines it
-    // has a default constructor that takes no arguments
-    // and has public getters for the properties to be assigned.
     public User(String username, String email) {
         setUsername(username);
         setEmail(email);
@@ -50,7 +47,7 @@ public class User {
         this.email = email;
     }
 
-    // Method that should create a new users randomized userID and check to make
+    // This method should create a new user's randomized userID and check to make
     // sure that it is not the same as any other userID in the database.
     public static String createNewUserId() {
 //        ValueEventListener

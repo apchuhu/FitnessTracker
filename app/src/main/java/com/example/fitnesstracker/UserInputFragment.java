@@ -48,7 +48,6 @@ public class UserInputFragment extends DialogFragment {
      * @param param2 Parameter 2.
      * @return A new instance of fragment UserInputFragment.
      */
-    // TODO: Rename and change types and number of parameters
     public static UserInputFragment newInstance(String param1, String param2) {
         UserInputFragment fragment = new UserInputFragment();
         Bundle args = new Bundle();
@@ -61,6 +60,7 @@ public class UserInputFragment extends DialogFragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        //code did not work so it was commented
 //        if (getArguments() != null) {
 //            mParam1 = getArguments().getString(ARG_PARAM1);
 //            mParam2 = getArguments().getString(ARG_PARAM2);
@@ -75,7 +75,7 @@ public class UserInputFragment extends DialogFragment {
     @SuppressLint("MissingInflatedId")
     @NonNull
     public AlertDialog onCreateView(@Nullable Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
+        // Inflate the layout for the fragment
         AlertDialog.Builder build = new AlertDialog.Builder(getActivity());
         LayoutInflater inflater = requireActivity().getLayoutInflater();
         View view = inflater.inflate(R.layout.fragment_userinput, null);

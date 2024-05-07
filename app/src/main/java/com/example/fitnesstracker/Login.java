@@ -53,6 +53,8 @@ public class Login extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
+
+
         // Creation of the Firebase instance
         mAuth = FirebaseAuth.getInstance();
         editTextEmail = findViewById(R.id.email);
@@ -101,12 +103,12 @@ public class Login extends AppCompatActivity {
                                   Intent intent = new Intent(getApplicationContext(), MainActivity.class);
                                   startActivity(intent);
                                   finish();
-                                  // Sign in success, update UI with the signed-in user's information
+                                  // When sign in is successful, update the UI with the signed-in user's information
 //                                  Log.d(TAG, "signInWithEmail:success");
 //                                  FirebaseUser user = mAuth.getCurrentUser();
 //                                  updateUI(user);
                               } else {
-                                  // If sign in fails, display a message to the user.
+                                  // When sign in fails, display a message to the user.
 //                                  Log.w(TAG, "signInWithEmail:failure", task.getException());
                                   Toast.makeText(Login.this, "Authentication failed.",
                                           Toast.LENGTH_SHORT).show();

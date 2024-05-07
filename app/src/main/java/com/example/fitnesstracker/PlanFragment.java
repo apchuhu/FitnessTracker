@@ -153,7 +153,7 @@ public class PlanFragment extends Fragment {
                                 String exerciseName = exerciseSnapshot.getKey();
                                 StringBuilder exerciseEntry = new StringBuilder(exerciseName + ": ");
 
-                                // Iterate through exercise details
+                                // Go through exercise details
                                 for (DataSnapshot detailSnapshot : exerciseSnapshot.getChildren()) {
                                     String detailKey = detailSnapshot.getKey();
                                     String detailValue = detailSnapshot.getValue(String.class);
@@ -166,7 +166,7 @@ public class PlanFragment extends Fragment {
                             }
                         }
 
-                        // Update the adapter with the new data
+                        // Update with the new data
                         entryAdapter.notifyDataSetChanged();
                     }
 
@@ -197,8 +197,7 @@ public class PlanFragment extends Fragment {
 
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                entryList.clear(); // Clear the existing list
-                // Iterate through the snapshot to retrieve entries
+                entryList.clear();
                 DataSnapshot generalTaskSnapshot = snapshot.child("general_task");
                 for (DataSnapshot entrySnapshot : generalTaskSnapshot.getChildren()) {
                     String entry = entrySnapshot.getValue(String.class);
@@ -211,7 +210,7 @@ public class PlanFragment extends Fragment {
                     String exerciseName = exerciseSnapshot.getKey();
                     StringBuilder exerciseEntry = new StringBuilder(exerciseName + ": ");
 
-                    // Iterate through exercise details (weight, sets, reps)
+                    // Go through exercise details (weight, sets, reps)
                     for (DataSnapshot detailSnapshot : exerciseSnapshot.getChildren()) {
                         String detailKey = detailSnapshot.getKey();
                         String detailValue = detailSnapshot.getValue(String.class);
@@ -222,7 +221,7 @@ public class PlanFragment extends Fragment {
                     // Add the exercise entry to the list
                     entryList.add(exerciseEntry.toString());
                 }
-                // Update the adapter with the new data
+                // Update with the new data
                 entryAdapter.notifyDataSetChanged();
             }
 

@@ -87,6 +87,7 @@ public class HomeFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
+        //getting steps this way did not work so we commented it out
 //        StepsFragment steps = new StepsFragment();
 //        bar.setProgress(steps.getmTotalSteps() - steps.getmPreTotalSteps());
 
@@ -115,6 +116,7 @@ public class HomeFragment extends Fragment {
         super.onPause();
     }
 
+    //method did not work
     //    public void updateProgress(){
 //        StepsFragment steps = new StepsFragment();
 //        bar.setProgress(steps.getmTotalSteps() - steps.getmPreTotalSteps());

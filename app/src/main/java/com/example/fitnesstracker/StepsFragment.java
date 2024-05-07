@@ -164,6 +164,8 @@ public class StepsFragment extends Fragment implements SensorEventListener {
 
     }
 
+
+
 //    private void loadData() {
 //        if (mAuth.getCurrentUser() != null) {
 //            String currentDate = getCurrentDate();
@@ -190,6 +192,7 @@ public class StepsFragment extends Fragment implements SensorEventListener {
 //            }
 //        }
 //    }
+
 
     private void loadData() {
         SharedPreferences sharedPref = requireActivity().getSharedPreferences("myPref", Context.MODE_PRIVATE);

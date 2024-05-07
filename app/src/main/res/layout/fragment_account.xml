@@ -6,24 +6,27 @@
     android:gravity="center"
     tools:context=".AccountFragment">
 
-    <TextView
-        android:id="@+id/user_Details"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text=""
-        android:textSize="30dp"
-        android:textStyle="bold"
-        android:layout_marginTop="25dp"
-        android:layout_centerHorizontal="true" />
+
+        <TextView
+            android:id="@+id/user_Details"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Hello people" />
+
+        <Button
+            android:text="@string/logout"
+            android:id="@+id/logout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+             />
 
     <Button
-        android:id="@+id/logout"
+        android:id="@+id/theme"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@id/user_Details"
-        android:layout_marginTop="446dp"
-        android:text="@string/logout"
-        android:layout_centerHorizontal="true"/>
+        android:text="@string/change_theme_color"/>
+
 
     <FrameLayout
         android:id="@+id/frame_layout"

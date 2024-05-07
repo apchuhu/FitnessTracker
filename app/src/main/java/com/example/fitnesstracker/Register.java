@@ -134,6 +134,8 @@ public class Register extends AppCompatActivity {
             }
         }));
     }
+    // This method below was moved to the User.java class
+
     // Method that should create a new users randomized userID and check to make
     // sure that it is not the same as any other userID in the database.
 //    public String createNewUserId() {

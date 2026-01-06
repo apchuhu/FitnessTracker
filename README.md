@@ -2,6 +2,11 @@
 
 ## What is the Fitness Tracker
 
+## Why Use the Fitness Tracker?
+
+> The obvious next question on any users mind is why use this app as opposed to others?
+:confused:
+
 
 ## How to Install and Run
 1. Install Android Studio

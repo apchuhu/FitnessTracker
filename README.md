@@ -1,6 +1,9 @@
 # Fitness Tracker - MotionFlow
 
-## How to install and run
+## What is the Fitness Tracker
+
+
+## How to Install and Run
 1. Install Android Studio
 2. Ensure that you have an emulated Android device
 3. Clone the project repository and open it in Android Studio

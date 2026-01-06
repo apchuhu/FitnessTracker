@@ -1,11 +1,17 @@
 # Fitness Tracker - MotionFlow
 
-## What is the Fitness Tracker
+## What is the MotionFlow?
 
-## Why Use the Fitness Tracker?
+## Why Use the MotionFlow?
 
-> The obvious next question on any users mind is why use this app as opposed to others?
-😕
+> The obvious next question on any users mind is why use this app as opposed to others?😕
+>
+> The MotionFlow application is dedicated to Android device users seeking to intergrate their real world health choices with in app functionalities.
+> Unlike many other apps of its kind MotionFlow offers many health features like:
+> - Motion Sensing step tracking. 🛰️
+> - Easy meal and workout planing capabilities. 🍗 💪
+> - Date specific itemization. ⏰
+> - Most importantly a dedicated team of experts ready to turn user *requests* into **REALITY**. 🤓
 
 
 ## How to Install and Run
